@@ -1,0 +1,111 @@
+{% extends 'adminpages/baseadmin.html' %} 
+
+{% block title %} Product list {% endblock title %}
+
+{% block content %}
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Product List</h4>
+            {% if query %}
+            <p>Search results for '{{ query }}':</p>
+            {% endif %}
+            
+            <!-- Search Form -->
+            <form method="GET" action="{% url 'productlist' %}" class="mb-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="query" placeholder="Search product" value="{{ search_query }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-primary font-weight-bold">Product ID</th>
+                            <th class="text-primary font-weight-bold">Name</th>
+                            <!-- <th class="text-primary font-weight-bold">Category</th> -->
+                            <th class="text-primary font-weight-bold">Variant</th>
+                            <th class="text-primary font-weight-bold">Image</th>
+                            <th class="text-primary font-weight-bold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-white">
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td class="product-name text-truncate" style="max-width: 150px;">{{ product.name }}</td>
+                            <!-- <td class="product-name text-truncate" style="max-width: 100px;">{{ product.category.name }}</td> -->
+                            <td> 
+                                {% for variant in product.variants.all %}
+                                    {{ variant.name }} 
+                                {% endfor %}   
+                            </td>  
+                            <td>
+                                {% with product_variant=product.productvariant_set.first %}
+                                    {% with product_color=product_variant.productvariantcolor_set.first %}
+                                        {% with product_image=product_color.productimage_set.first %}
+                                            {% if product_image %}
+                                                <img src="{{ product_image.image.url }}" alt="Product Image">
+                                            {% else %}
+                                                <p>No image available</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <a class="btn btn-primary me-2" href="{% url 'viewproduct' product.id %}" role="button">View</a>
+                                {% if product.product_deleted %}
+                                    <a href="{% url 'revoke_product' product.id %}"><button class="btn btn-success me-2"  role="button" >Revoke</button></a>
+                                {% else %}
+                                    <a class="btn btn-danger me-2" href="{% url 'delete_product' product.id %}" role="button">Delete</a>
+                                {% endif %}
+                                <a class="btn btn-info" href="{% url 'edit_product' product.id %}" role="button">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if products.has_other_pages %}
+            <ul class="pagination">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in products.paginator.page_range %}
+                {% if num == products.number %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.paginator.num_pages }}">Last &raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

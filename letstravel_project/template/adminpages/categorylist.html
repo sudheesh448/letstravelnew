@@ -1,0 +1,89 @@
+{% extends 'adminpages/baseadmin.html' %} 
+{% block title %} Category list {% endblock title %}
+
+{% block content %}
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Category List</h4>
+            
+            <!-- Search Form -->
+            <form method="GET" action="{% url 'categoryview' %}" class="mb-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Search categories" value="{{ search_query }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-primary font-weight-bold">Category ID</th>
+                            <th class="text-primary font-weight-bold">Category Name</th>
+                            <th class="text-primary font-weight-bold">Description</th>
+                            <th class="text-primary font-weight-bold">Variants</th>
+                            <th class="text-primary font-weight-bold">View</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-white">
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.description }}</td>
+                            <td>
+                                {% for variant in category.variants.all %}
+                                    {{ variant.name }}<br>
+                                {% empty %}
+                                    No variants available.
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a class="btn btn-primary me-2" href="{% url 'category_update' category.id%}" role="button">Update</a> 
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if categories.has_other_pages %}
+            <ul class="pagination">
+                {% if categories.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ categories.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for num in categories.paginator.page_range %}
+                {% if num == categories.number %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if categories.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ categories.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ categories.paginator.num_pages }}">Last &raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

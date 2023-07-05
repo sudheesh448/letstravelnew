@@ -1,0 +1,83 @@
+<!-- next_page.html -->
+{% extends 'adminpages/baseadmin.html' %}
+{% block content %}
+  <div class="col-12 grid-margin">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Select Your Colors</h4>
+        <p>Product ID: {{ product_id }}</p>
+        <p>Selected Variants: {{ selected_variants }}</p>
+
+        
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Product-Variant-ID</th>
+                <th>Variant</th>
+                <th>Color</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product_variant in product_variants %}
+              <form id="colorForm" method="post" action="{% url 'save_product_variant_color' %}">
+                {% csrf_token %}
+                <tr>
+                  <td>{{ product_variant.pk }}</td>
+                  <td>{{ product_variant.variant.name }}</td>
+                  <td>
+                    <select class="form-select color-select" name="color" >
+                      <option value="">Select Color</option>
+                      {% for color_variant in colors %}
+                        <option value="{{ color_variant.id }}">{{ color_variant.color }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <input type="number" class="form-control price-input" name="price" step="0.01" min="0" >
+                  </td>
+                  <td>
+                    <input type="number" class="form-control stock-input" name="stock" min="0"  >
+                  </td>
+                  <td>
+                    <input type="hidden" name="product_variant_id" value="{{ product_variant.pk }}">
+                    <button type="submit" class="btn btn-primary save-btn" >Save</button>
+                  </td>
+                </tr>
+                {% for product_variant_color in product_variant.productvariantcolor_set.all %}
+                <tr>
+                  <td>
+                    ProductVariantColor ID: {{ product_variant_color.id }}
+                  </td>
+                  
+                  <td >
+                    Saved Color: {{ product_variant_color.color_variant.color }}
+                  </td>
+                  <td>
+                    <td>
+                      <a href="#" class="btn btn-primary upload-btn" onclick="openPopup('{% url 'upload_images' product_variant_color.id %}')">Upload Image</a>
+                    </td>
+                  </td>
+                </tr>
+              {% endfor %}
+              </form>
+              
+              
+              {% endfor %}
+            </tbody>
+          </table>
+        
+      </div>
+    </div>
+  </div>
+  <script>
+    function openPopup(url) {
+      window.open(url, 'Upload Image', 'width=800,height=600');
+    }
+  </script>
+
+  
+{% endblock content %}
+

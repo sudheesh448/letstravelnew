@@ -1,0 +1,36 @@
+{% extends 'adminpages/baseadmin.html' %} 
+{% block title %} Add Category {% endblock title %}
+
+{% block content %}
+
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">Add Category</h4>
+      <form class="" method="POST" action="{% url 'addcategory' %}">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="addcategory">Category Name</label>
+            <input type="text" class="form-control" name="name" id="addcategory" placeholder="" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="addcategory">Description</label>
+            <textarea class="form-control" name="description" rows="5" value="{{ request.POST.product_description }}"></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary">Save and add variants</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+  {% endblock content%}

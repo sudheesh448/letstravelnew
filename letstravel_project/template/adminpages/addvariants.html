@@ -1,0 +1,79 @@
+{% extends 'adminpages/baseadmin.html' %} 
+{% block title %} Add Category {% endblock title %}
+
+{% block content %}
+<div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Add Variants for the product: {{ category }}</h4>
+        
+        <form method="post" action="{% url 'addvariants' %}" class="form-inline"  id="variants-form">
+          {% csrf_token %}
+          <h4 class="card-title m-4">Variant Name</h4>
+        
+          <div id="variants-container">
+            <!-- Initial variant input field -->
+            <div class="form-group">
+              <input type="text" class="form-control" name="variant[]" placeholder="Variant">
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary mx-2 mb-2" id="add-variant">Add More</button>
+          
+          
+        </form>
+        <button type="submit" class="btn btn-primary mb-2" id="save-variants">Save</button>
+        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+          $(document).ready(function() {
+            // Add variant input field
+            $('#add-variant').on('click', function() {
+              var variantInput = $('<div class="form-group">' +
+                                    '<input type="text" class="form-control" name="variant[]" placeholder="Variant">' +
+                                  '</div>');
+              $('#variants-container').append(variantInput);
+            });
+          
+            // Save variants
+            $('#save-variants').on('click', function(e) {
+              e.preventDefault();
+              var form = $('#variants-form');
+              var variantInputs = form.find('input[name="variant[]"]');
+              var hasValue = false;
+              
+              // Check if at least one variant input field has a value
+              variantInputs.each(function() {
+                if ($(this).val().trim() !== '') {
+                  hasValue = true;
+                  return false; // Exit the loop if a value is found
+                }
+              });
+              
+              if (hasValue) {
+                $.ajax({
+                  url: form.attr('action'),
+                  type: form.attr('method'),
+                  data: form.serialize(),
+                  success: function(response) {
+                    // Handle success response
+                    console.log('Variants saved successfully');
+                    window.location.href = '{% url 'categoryview'%}'; // Replace with your desired redirect URL
+                  },
+                  error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error('Error saving variants:', error);
+                  }
+                });
+              } else {
+                console.log('No variants to save');
+                window.location.href = '{% url 'categoryview'%}'; // Replace with your desired redirect URL
+              }
+            });
+          });
+          </script>
+          
+        
+      </div>
+    </div>
+  </div>
+{% endblock content%}

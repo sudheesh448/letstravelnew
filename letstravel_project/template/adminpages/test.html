@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    
+</head>
+<body>
+    <div class="container">
+        <h2>Add Product</h2>
+        <form id="addProductForm" method="POST" action="{%url 'addproduct' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="product_name">Product Name:</label>
+                <input type="text" class="form-control" id="product_name" name="product_name" required>
+            </div>
+            <div class="form-group">
+                <label for="product_description">Product Description:</label>
+                <textarea class="form-control" id="product_description" name="product_description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select class="form-control" id="category" name="category" required>
+                    <option value="">Select a category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group d-flex" id="subcategory_container">
+                <!-- Subcategories field will be dynamically loaded here -->
+            </div>
+            <div class="form-group d-flex" id="variant_container">
+                <!-- Variants field will be dynamically loaded here -->
+            </div>
+            <div class="form-group d-flex" id="color_container">
+                <!-- Colors field will be dynamically loaded here -->
+            </div>
+            <div class="form-group d-flex" id="price_stock_container">
+                <!-- Price and Stock fields will be dynamically loaded here -->
+            </div>
+            <button type="submit d-flex" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        // Handle category selection change event
+        $('#category').change(function() {
+          var category_id = $(this).val();
+    
+          // Clear existing subcategories, variants, colors, price, and stock fields
+          $('#subcategory_container').html('');
+          $('#variant_container').html('');
+          $('#color_container').html('');
+          $('#price_stock_container').html('');
+    
+          // Load subcategories for the selected category using AJAX
+          if (category_id !== '') {
+            $.ajax({
+              url: '/load_subcategories/',
+              type: 'GET',
+              data: {
+                'category_id': category_id
+              },
+              success: function(response) {
+                if (response.subcategories.length > 0) {
+                  var subcategoryHtml = '<label for="subcategory">Subcategory:</label>';
+                  $.each(response.subcategories, function(index, subcategory) {
+                    subcategoryHtml += '<div class="form-check">';
+                    subcategoryHtml += '<input type="radio" class="form-check-input" name="subcategory" value="' + subcategory.id + '">';
+                    subcategoryHtml += '<label class="form-check-label">' + subcategory.name + '</label>';
+                    subcategoryHtml += '</div>';
+                  });
+                  $('#subcategory_container').html(subcategoryHtml);
+                }
+              }
+            });
+          }
+        });
+    
+        // Handle subcategory selection change event
+        $(document).on('change', 'input[name="subcategory"]', function() {
+          var subcategory_id = $(this).val();
+    
+          // Clear existing variants, colors, price, and stock fields
+          $('#variant_container').html('');
+          $('#color_container').html('');
+          $('#price_stock_container').html('');
+    
+          // Load variants for the selected subcategory using AJAX
+          if (subcategory_id !== '') {
+            $.ajax({
+              url: '/load_variants/',
+              type: 'GET',
+              data: {
+                'subcategory_id': subcategory_id
+              },
+              success: function(response) {
+                if (response.variants.length > 0) {
+                  var variantHtml = '<label for="variants">Variants:</label>';
+                  $.each(response.variants, function(index, variant) {
+                    variantHtml += '<div class="form-check">';
+                    variantHtml += '<input type="checkbox" class="form-check-input" name="variants" value="' + variant.id + '">';
+                    variantHtml += '<label class="form-check-label">' + variant.name + '</label>';
+                    variantHtml += '</div>';
+                  });
+                  $('#variant_container').html(variantHtml);
+                }
+              }
+            });
+          }
+        });
+    
+        // Handle variant selection change event
+        $(document).on('change', 'input[name="variants"]', function() {
+          var selectedVariants = $('input[name="variants"]:checked').map(function() {
+            return $(this).val();
+          }).get();
+    
+          // Clear existing colors, price, and stock fields
+          $('#color_container').html('');
+          $('#price_stock_container').html('');
+    
+          // Load colors for the selected variants using AJAX
+          if (selectedVariants.length > 0) {
+            $.ajax({
+              url: '/load_colors/',
+              type: 'GET',
+              data: {
+                'variant_id': selectedVariants
+              },
+              success: function(response) {
+                if (response.colors.length > 0) {
+                  var colorHtml = '<label for="colors">Colors:</label>';
+                  $.each(response.colors, function(index, color) {
+                    colorHtml += '<div class="form-check">';
+                    colorHtml += '<input type="checkbox" class="form-check-input" name="colors" value="' + color.id + '">';
+                    colorHtml += '<label class="form-check-label">' + color.name + '</label>';
+                    colorHtml += '</div>';
+                  });
+                  $('#color_container').html(colorHtml);
+                }
+              }
+            });
+    
+            // Render the price and stock fields for each selected variant
+            var priceStockHtml = '';
+            $.each(selectedVariants, function(index, variantId) {
+              $.ajax({
+                url: '/get_variant_name/',
+                type: 'GET',
+                data: {
+                  'variant_id': variantId
+                },
+                success: function(response) {
+                  var variantName = response.variant_name;
+                  priceStockHtml += '<div class="form-row">';
+                  priceStockHtml += '<div class="form-group">';
+                  priceStockHtml += '<label for="variant_' + variantId + '_price">Price for Variant ' + variantName + ':</label>';
+                  priceStockHtml += '<input type="text" class="form-control" id="variant_' + variantId + '_price" name="variant_price_' + variantId + '" required>';
+                  priceStockHtml += '</div>';
+                  priceStockHtml += '<div class="form-group">';
+                  priceStockHtml += '<label for="variant_' + variantId + '_stock">Stock for Variant ' + variantName + ':</label>';
+                  priceStockHtml += '<input type="text" class="form-control" id="variant_' + variantId + '_stock" name="variant_stock_' + variantId + '" required>';
+                  priceStockHtml += '</div>';
+                  priceStockHtml += '</div>';
+    
+                  $('#price_stock_container').html(priceStockHtml);
+                },
+                error: function(xhr) {
+                  console.log(xhr.responseText);  // Handle error response
+                }
+              });
+            });
+          }
+        });
+    
+        // Handle form submission
+        $('#addProductForm').submit(function(e) {
+          e.preventDefault();
+    
+          var form = $(this);
+          var url = form.attr('action');
+          var formData = form.serialize();
+    
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+              console.log(response);  // Handle success response
+              window.location.href = '/success-page/';  // Redirect to success page
+            },
+            error: function(xhr) {
+              console.log(xhr.responseText);  // Handle error response
+            }
+          });
+        });
+      });
+    </script>
+    
+</body>
+</html>

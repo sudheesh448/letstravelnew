@@ -1,0 +1,36 @@
+{% extends 'adminpages/baseadmin.html' %} 
+
+{% block title %} Update category {% endblock title %}
+
+{% block content %}
+<!-- category_update.html -->
+
+<h1>Update Category</h1>
+
+<!-- category_update.html -->
+
+<h1>Update Category</h1>
+
+<form method="POST">
+  {% csrf_token %}
+  
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name" value="{{ category.name }}">
+  
+  <label for="description">Description:</label>
+  <textarea id="description" name="description">{{ category.description }}</textarea>
+  
+  <h2>Select Variants to Delete</h2>
+  {% for variant in variants %}
+    <div>
+      <input type="checkbox" id="delete_variant_{{ variant.id }}" name="delete_variant" value="{{ variant.id }}">
+      <label for="delete_variant_{{ variant.id }}">{{ variant.name }}</label>
+    </div>
+  {% endfor %}
+  
+  <button type="submit">Next</button>
+</form>
+
+
+
+{% endblock content %}
