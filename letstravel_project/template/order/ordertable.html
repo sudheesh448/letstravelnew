@@ -1,0 +1,81 @@
+
+{% extends 'products/productbase.html' %}
+
+{% block title %}
+order place
+{% endblock  %}
+
+{% block content %}
+<div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
+            Home
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <span class="stext-109 cl4">
+            Shoping Cart
+        </span>
+    </div>
+</div>
+    
+
+<!-- Shoping Cart -->
+
+
+<form class="bg0 p-t-75 p-b-85">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
+                <div class="m-l-25 m-r--38 m-lr-0-xl">
+                    <div class="wrap-table-shopping-cart">
+                    
+                          <table class="table">
+                            <thead class="thead-light">
+                              <tr>
+                                <th scope="col">Order Id</th>
+                                <th scope="col">Payment Status</th>
+                                <th scope="col">Payment Method</th>
+                                <th scope="col">Order  Date</th>
+                                <th scope="col">Delivary Date</th>
+                                <th scope="col">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for orders in order %}
+                              <tr>
+                                <th scope="row">{{orders.id}}</th>
+                                <td>{{orders.payment_status}}</td>
+                                <td>{{orders.payment_method}}</td>
+                                <td>{{orders.order_date}}</td>
+                                <td>{{orders.delivery_date}}</td>
+                                <td>
+                                    <a class="btn btn-dark" href="#" role="button">Cancel</a>
+                                    <a href="{%url 'order_view' orders.id%}" role='button' class="btn btn-light">View</a>
+                                </td>
+                              </tr>
+                          {% endfor %}
+                            </tbody>
+                          </table>                    
+                    </div>
+                  
+                </div>
+            </div>
+
+            <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
+                <div class="p-lr-40  p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWrGWx0vyVbtGitn88XHvORG5A6HN6oVdLkA&usqp=CAU" alt="Card image cap">
+                        <div class="card-body">
+                          <h5 class="card-title">Order Page</h5>
+                          <p class="card-text"></p>
+                          <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                      </div>         
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock  %}

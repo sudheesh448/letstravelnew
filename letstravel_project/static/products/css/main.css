@@ -202,10 +202,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   height: auto;
   width: 100%;
   position: relative;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
-  -moz-transition: all 0.3s;
-  transition: all 0.3s;
+  
 }
 
 .header-v2 .container-menu-desktop {
@@ -309,7 +306,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   display: -ms-flexbox;
   display: flex;
   align-items: center;
-  background-color: transparent;
+  background-color: black;
 }
 
 

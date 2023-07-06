@@ -122,7 +122,6 @@ def getcolorname(request):
         slug = product_variant_color.slug
         productvariantcolor_id = product_variant_color.pk
 
-        print(color_name)
 
         response = {
             'color_name': color_name,

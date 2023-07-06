@@ -125,21 +125,28 @@
 
 							<div class="flex-w flex-r-m p-b-10">
 								<div class="size-204 flex-w flex-m respon6-next">
-									
+									<form method="post" id="add-to-cart-form">
+										{% csrf_token %}
+										<!-- Input fields for the data you want to send -->
+										<input type="hidden" name="product_variant_color_id" value="{{ productVariantColorId }}">
+										<!-- Add other input fields as needed -->
+									    
+										<!-- Button to submit the form -->
+										<button type="submit" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Add to Cart</button>
+									  </form>
 
-									<a href="" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-										Add to cart
-									  </a>
-									  
+									  <div id="message">
+										{% if message %}
+										  {% if success %}
+											<p class="success">{{ message }}</p>
+										  {% else %}
+											<p class="error">{{ message }}</p>
+										  {% endif %}
+										{% endif %}
+									  </div>
 								</div>
-							</div>	
-							
-
-							
-
-								
+							</div>
 						</div>
-
 						<!--  -->
 						<div class="flex-w flex-m p-l-100 p-t-40 respon7">
 							<div class="flex-m bor9 p-r-10 m-r-11">
@@ -148,11 +155,9 @@
 									<i class="zmdi zmdi-favorite"></i>
 								</a>
 							</div>
-
 							<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Facebook">
 								<i class="fa fa-facebook"></i>
 							</a>
-
 							<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Twitter">
 								<i class="fa fa-twitter"></i>
 							</a>
@@ -623,35 +628,7 @@
 			</div>
 		</div>
 	</section>
-	<!-- <script>
-	$(document).ready(function() {
-		$('.variant-link').click(function(e) {
-			e.preventDefault();
-			var variantId = $(this).data('variant');
-			var colorIdsElement = $('#color-ids-' + variantId);
-			
-			// Make AJAX request to retrieve associated color IDs
-			$.ajax({
-				url: '/getcolorids/',  // Update with your endpoint URL
-				method: 'GET',
-				data: { variant_id: variantId },  // Update parameter name to match the one used in the views.py file
-				success: function(response) {
-					
-					colorIdsElement.empty();
-					response.color_ids.forEach(function(colorId) {
-						colorIdsElement.append('<ul>' + colorId + '</ul>');
-						console.log("success")
-						console.log(response.color_ids)
-					});
-				},
-				error: function() {
-					console.log('Error occurred during AJAX request');
-				}
-			});
-		});
-	});
 	
-</script> -->
 
 <script>
 	$(document).ready(function() {
@@ -716,6 +693,51 @@
 
 	</script>
 	
+	<script>
+		$(document).ready(function() {
+		  $('#add-to-cart-form').submit(function(e) {
+			e.preventDefault();
+	  
+			// Get the CSRF token value
+			var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+			
+	  
+			// Get the product variant color ID
+			var productVariantColorId = $('input[name="product_variant_color_id"]').val();
+			
+	  
+			// Prepare the data to send in the request
+			var formData = {
+			  'csrfmiddlewaretoken': csrfToken,
+			  'product_variant_color_id': productVariantColorId
+			  
+			  // Add other input fields and their values as needed
+			};
+			console.log(productVariantColorId)
+			
+	  
+			// Make the AJAX request to add the item to the cart
+			$.ajax({
+			  url: '/addtocart/', // Update with the URL for your add_to_cart view
+			  method: 'POST',
+			  data: formData,
+			  success: function(response) {
+				// Handle the success response
+				console.log(response);
+				$('#message').text(response.message).addClass('the product successfully added to cart').removeClass('error');
+			  },
+			  error: function(xhr, status, error) {
+				// Handle the error response
+				console.log(error);
+				$('#message').text(response.message).addClass('error').removeClass('success');
+			  }
+			});
+		  });
+		});
+	  </script>
+	  
+		
+
 	
 	<script>
 		$(".js-select2").each(function(){
