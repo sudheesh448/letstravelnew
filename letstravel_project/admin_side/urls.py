@@ -38,6 +38,12 @@ urlpatterns = [
     path('deletecustomer/<int:customer_id>/', customer_view.deletecustomer, name='deletecustomer'),
     path('unbancustomer/<int:customer_id>/', customer_view.unbancustomer, name='unbancustomer'),
     path('revokecustomer/<int:customer_id>/', customer_view.revokecustomer, name='revokecustomer'),
+
+    path('ordertableadmin',product_view_add_category.ordertableadmin,name="ordertableadmin"),
+    path('order_viewadmin/<int:order_id>',product_view_add_category.order_viewadmin,name='order_viewadmin'),
+    path('Shipped_order/<int:order_id>',product_view_add_category.Shipped_order,name='Shipped_order'), 
+    path('Delivered_order/<int:order_id>',product_view_add_category.Delivered_order,name='Delivered_order'), 
+
     ]
 
 

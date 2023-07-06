@@ -28,7 +28,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.ForeignKey(UserAddress, on_delete=models.CASCADE)
     total_price = models.FloatField(null=False)
-    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='ordered')
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='ordered')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     message = models.TextField(null=True)
     tracking_no = models.CharField(max_length=150,null=True)

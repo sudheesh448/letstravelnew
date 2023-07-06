@@ -37,29 +37,17 @@ def addtocart(request):
         else:
             # Create a new cart item if the product is not yet in the cart
             CartItem.objects.create(cart=cart, product_variant_color=productvariantcolor, price=productvariantcolor.price, subtotal=productvariantcolor.price)
-
-        
-
         return JsonResponse({'message': 'Product added to cart successfully'})
-    
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def shoppingcart(request):
-
     cart = Cart.objects.get(user=request.user)
-
     print(cart)
     context = {
         'cart': cart,
     }
-    
     return render(request, 'cart/shop_cart.html',context)
-
-
-
-
-
 
 
 def remove_from_cart(request):

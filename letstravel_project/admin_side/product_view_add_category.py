@@ -8,6 +8,8 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control,never_cache
 from admin_side.forms import ImageForm
+from order.models import OrderItem
+from order.models import Order
 from .models import Category
 
 
@@ -264,6 +266,53 @@ def productlist(request):
 
     return render(request, 'adminpages/productlist.html', context)
 
+def ordertableadmin(request):
+    search_query = request.GET.get('q')
+    order_list = Order.objects.all()
+
+    if search_query:
+        order_list = order_list.filter(
+            Q(id__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
+            Q(status__icontains=search_query) |
+            Q(payment_method__icontains=search_query)
+        )
+
+    paginator = Paginator(order_list, 10)  # Show 10 orders per page
+
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
+
+    context = {
+        'orders': orders,
+        'search_query': search_query
+    }
+    return render(request, 'adminpages/orders.html', context)
+
+def order_viewadmin(request,order_id):
+    orderss = Order.objects.get(id=order_id)
+    view_order = OrderItem.objects.filter(order=orderss)
+    context ={
+        'view_order':view_order
+    }
+    return render(request,"adminpages/order_viewadmin.html",context)
+
+
+def Shipped_order(request,order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if order.status != 'PAID' and order.status != 'CANCELLED':
+            # Update the payment status to 'CANCELLED'
+            order.status = 'SHIPPED'
+            order.save()
+    return redirect('ordertableadmin')
+
+def Delivered_order(request,order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if order.status != 'PAID' and order.status != 'CANCELLED' and order.status == 'SHIPPED':
+            # Update the payment status to 'CANCELLED'
+            order.status = 'DELIVERED'
+            order.save()
+    return redirect('ordertableadmin')
 
 
 

@@ -25,7 +25,6 @@ def add_address(request):
         country = request.POST.get('country')
         email = request.POST.get('email')
         phone_number = request.POST.get('phone')
-
         # Create a new UserAddress object and save it to the database
         user_address = UserAddress(
             user=request.user,  # Assuming the request has a logged-in user
@@ -62,7 +61,6 @@ def edit_address(request,address_id):
         country = request.POST.get('country')
         email = request.POST.get('email')
         phone_number = request.POST.get('phone')
-
         # Update the user address fields
         user_address.first_name = first_name
         user_address.last_name = last_name
@@ -74,12 +72,48 @@ def edit_address(request,address_id):
         user_address.country = country
         user_address.email = email
         user_address.phone_number = phone_number
-
         # Save the updated user address
-      
         user_address.save()
         return redirect('address')
      context = {
          'user_address':user_address
      }
      return render(request,'userprofile/edit_address.html',context)
+
+
+def profile_view(request):
+     if request.method == 'POST':
+        # Get the form data from the request
+        first_name = request.POST.get('fname')
+        last_name = request.POST.get('lname')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        # Update the user object with the new information
+        user = request.user
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username = username
+        user.email = email
+        user.save() 
+        return redirect('profile_view')  # Redirect to the profile view or any other desired page after updating
+     address = UserAddress.objects.filter(user = request.user)
+     context = {
+        'address':address
+     }
+     return render(request,'profile/profile.html',context)
+
+
+def user_address(request):
+    user_add = request.user
+    address = UserAddress.objects.filter(user = user_add)
+    context = {
+        'address':address
+    }
+    return render(request,'userprofile/address.html',context) 
+def delete_address(request):
+     if request.method == 'POST':
+        user_add_id = request.POST.get('user_add_id')  
+        useraddress = UserAddress.objects.get(id=user_add_id)
+        useraddress.delete()
+        return redirect('profile_view')
+     

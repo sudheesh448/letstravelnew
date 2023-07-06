@@ -1,0 +1,112 @@
+{% extends 'products/productbase.html' %}
+
+{% block title %}
+profile
+{% endblock %}
+
+{% block content %}
+<br><br><br>
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col">
+          <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a href="{%url 'ordertable'%}">Order</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'user_address'%}">Address</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Offers</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4 border-danger">
+            <div class="card-body text-center">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
+                class="rounded-circle img-fluid" style="width: 150px;">
+              <h5 class="my-3">{{user.username}}</h5>
+              <p class="text-muted mb-1">User Profile</p>
+              <p class="text-muted mb-4">{{user.email}}</p>
+              <div class="d-flex justify-content-center mb-2">
+                <a href="{% url 'signout' %}" class="btn btn-dark" style="background-color: #343a40; width: 200px; border-radius: 20px;">Logout</a>
+                
+              </div>
+              
+            </div>
+          </div>
+          <div class=" ">
+            <a href="{% url 'ordertable' %}"><button type="button" class="btn btn-primary btn-lg btn-block mb-3 ">View Your Orders</button></a>
+            <a href="{% url 'add_address' %}"><button type="button" class="btn btn-primary btn-lg btn-block ">Add new Address</button></a>
+          </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card mb-4 border-primary p-1">
+              <div class="card-body">
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="row mb-3">
+                      <div class="col">
+                        <div class="form-outline">
+                          <input type="text" id="form7Example1" value="{{ user.first_name }}" name="fname" class="form-control" placeholder="First Name" />
+                        </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-outline">
+                          <input type="text" id="form7Example1" value="{{ user.last_name }}" name="lname" class="form-control" placeholder="Last Name" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-outline mb-4">
+                      <input type="text" id="form7Example4" value="{{ user.username }}" name="username" class="form-control" placeholder="Username" />
+                    </div>
+                    <div class="form-outline mb-4">
+                      <input type="text" id="form7Example4" value="{{ user.email }}" name="email" class="form-control" placeholder="Email" />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+              </div>
+            </div>
+            <div class="d-flex row px-4" >
+              {% for user_add in address %}
+                <div class="card  mb-3 border-primary" id="card-{{ user_add.id }}" style="max-width: 18rem;">
+                  <div class="card-header">Address</div>
+                  <div class="card-body">
+                    <h5 class="card-title">{{ user_add.first_name }} {{ user_add.last_name }}</h5>
+                    <p class="card-text">{{ user_add.email }}</p>
+                    <p class="card-text">
+                      {{ user_add.address_line_1 }}
+                      {{ user_add.city }}, {{ user_add.state }},
+                      {{ user_add.country }}, {{ user_add.postal_code }}
+                    </p>
+                    <p class="card-text">Ph: {{ user_add.phone_number }}</p>
+                    <div class="d-flex justify-content-between">
+                      <div class="d-grid gap-2 mt-2 mx-2">
+                          <a href="{% url 'edit_address' address_id=user_add.id %}" class="btn btn-dark">Edit </a>
+                        </div>
+
+
+                       <div class="d-grid gap-2 mt-2 mx-2">
+                        <form method="POST" action="{% url 'delete_address' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="user_add_id" value="{{ user_add.id }}">
+                          <button class="btn btn-danger" type="submit">Delete </button>
+                      </form>
+                    </div>
+             
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock  %}
