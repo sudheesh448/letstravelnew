@@ -46,7 +46,9 @@
                             <tr class="table_row">
                                 <td class="column-1">
                                     <div class="how-itemcart1">
-                                        <img src="{{cart_item.product_variant_color.product_image.first.image.url }}" alt="IMG">
+                                        {% with product_image=cart_item.product_variant_color.productimage_set.first %}
+                                        <img src="{{product_image.image.url }}" alt="IMG">
+                                        {% endwith %}
                                     </div>
                                    
                                 </td>

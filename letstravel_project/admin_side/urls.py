@@ -20,19 +20,27 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('adminlogout/', views.admin_logout, name='admin_logout'),
     
-    path('viewproduct/<int:product_id>/', product_view_add_category.viewproduct, name='viewproduct'),
+    
     path('addcategory/', product_view_add_category.add_category, name='addcategory'),
     path('addvariants/', product_view_add_category.addvariants, name='addvariants'),
     path('categoryview/', product_view_add_category.category_view, name='categoryview'),
     path('categoryupdate/<int:category_id>/', product_view_add_category.category_update, name='category_update'),
+
+
     path('productlist/', product_view_add_category.productlist, name='productlist'),
+    path('viewproduct/<int:product_id>/', product_view_add_category.viewproduct, name='viewproduct'),
+    path('mark_variant_deleted/', product_view_add_category.mark_variant_deleted, name='mark_variant_deleted'),
+    path('mark_variant_revoked/', product_view_add_category.mark_variant_revoked, name='mark_variant_revoked'),
+    path('update_price_stock/', product_view_add_category.update_price_stock, name='update_price_stock'),
+    path('add_new_variant/', product_view_add_category.add_new_variant, name='add_new_variant'),
+
+   
+
     path('customerlist/', customer_view.customer_list, name='customerlist'),
 
     path('editproduct/<int:product_id>/', customer_view.editproduct, name='edit_product'),
     path('deleteproduct/<int:product_id>/', customer_view.delete_product, name='delete_product'),
     path('revokeproduct/<int:product_id>/', customer_view.revoke_product, name='revoke_product'),
-
-
     path('viewcustomer/<int:customer_id>/', customer_view.viewcustomer, name='viewcustomer'),
     path('bancustomer/<int:customer_id>/', customer_view.bancustomer, name='bancustomer'),
     path('deletecustomer/<int:customer_id>/', customer_view.deletecustomer, name='deletecustomer'),

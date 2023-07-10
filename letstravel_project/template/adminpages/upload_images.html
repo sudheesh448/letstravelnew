@@ -99,7 +99,7 @@ body {
         
      
         $image.cropper({
-            aspectRatio: 600 / 800,
+            aspectRatio: 1200 / 1486,
             viewMode: 1,
             strict: true,
             zoomable: true,
@@ -109,7 +109,7 @@ body {
         console.log(cropper);
         var cropper = $image.data('cropper');
         confirmBtn.addEventListener('click', ()=>{
-            cropper.getCroppedCanvas({width: 600, height: 800}).toBlob((blob) => {
+            cropper.getCroppedCanvas({width: 1200, height: 1486}).toBlob((blob) => {
                 
                 const fd = new FormData();
                 fd.append('csrfmiddlewaretoken', csrf[0].value)

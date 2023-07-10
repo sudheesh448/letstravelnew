@@ -17,8 +17,8 @@ def checkout(request, address_id):
     carts = Cart.objects.get(user=request.user)
     items = CartItem.objects.filter(cart=carts)
     total_price = carts.total_price  
-    if total_price == 0:
-        return HttpResponse('Cart is empty.')
+    # if total_price == 0:
+    #     return HttpResponse('Cart is empty.')
 
     order = Order.objects.create(
     user=request.user,
@@ -36,6 +36,9 @@ def checkout(request, address_id):
             quantity=cart_item.quantity
             # Set other fields as necessary
         )
+            variant = cart_item.product_variant_color   
+            variant.stock -= cart_item.quantity
+            variant.save()
     items.delete()  
     # return render(request, "order/checkout.html", {"user_add": user_add, "carts": carts})
     return render(request, "order/checkout.html", {"user_add": user_add, "carts": carts})

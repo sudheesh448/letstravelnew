@@ -1,177 +1,136 @@
 {% extends 'adminpages/baseadmin.html' %} 
 {% load static %}
-{% block title %} view product {% endblock title %}
+{% block title %} View Product {% endblock title %}
 
 {% block content %}
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body row">
+            <h4>Name of the product :   </h4> <h4 class="title text-white mb-2">{{  product.name }}</h4>
+        </div> 
+        <div class="card-body row"><h5 class="title text-white mb-2"> Category of the product : {{product.category }}</h5></div>
 
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-
-    <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
-    <style type="text/css">
-        
-    body { background-color: #fafafa; overflow-y: scroll; }
-    /* Rest of the CSS styles */
-
-        img { display: block; }
-        .imgBox { width: 400px; height: 550px; }
-
-        .container {
-            max-height: 100vh; /* Set a maximum height for the container */
-            
-        }
-
-        img[data-large] {
-            cursor: pointer;
-        }
-
-        img[data-large]:hover {
-            transform: scale(2.5);
-            transition: transform 0.3s ease-in-out;
-        }
-		.imgBox {
-  width: 100%;
-  height: 100%;
-}
-    </style>
-    
-    <script type="text/javascript" src="{% static 'products/js/jquery.imgzoom.js' %}"></script>
-
-    
-
-    <!-- Navbar Start -->
-    <div class="container-fluid">
-		<h1 class="title text-White mb-4">
-			{{ product.name }}
-		</h1>
-        <section>
-            <div class="container">
-                <div class="row gx-5">
-                    <div class="row">
-                        <aside class="col-lg-6 imgBox">
-                            <div class="border rounded-4 mb-3 d-flex justify-content-center">
-                                {% for image in product.images.all %}
-                                    {% if forloop.first %}
-                                        <a data-fslightbox="mygalley" class="rounded-4" target="_blank" data-type="image" href="{{ image.image.url }}">
-                                            <img style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit" src="{{ image.image.url }}" data-origin="{{ image.image.url }}">
-                                        </a>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        
-                            <!-- Large Image Overlay -->
-                            <div id="largeImageOverlay" class="rounded-4">
-                                <img id="largeImage">
-                            </div>
-
-
-							<div class="d-flex justify-content-center mb-3">
-								{% for image in product.images.all %}
-									{% if not forloop.first %}
-										<a href="{{ image.image.url }}" target="_blank">
-											<img width="60" height="60" class="rounded-2" src="{{ image.image.url }}" alt="Product Image" data-large="{{ image.large_image.url }}">
-										</a>
-									{% endif %}
-								{% endfor %}
-							</div>
-
-							
-                        </aside>
-						
-                        
-                    </div>
-                    
-                    <main class="col-lg-6 col-12">
-                        <div class="ps-lg-3">
-                            <h6>Rating</h6>
-                            <div class="d-flex flex-row my-3">
-								
-                                <div class="text-warning mb-1 me-2">
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                    <span class="ms-1">
-                                        4.5
-                                    </span>
-                                </div>
-                                
-                            </div>
-							<span class="text-muted">
-								<i class="fas fa-shopping-basket fa-sm mx-1"></i>
-								{{ product.quantity_left }}
-							</span>
-							<span class="text-White ms-2">Items left</span>
-
-                            <div class="mb-3">
-                                <span class="h5 text-white">
-                                   Price : ₹{{ product.price }}
-                                </span>
-                            </div>
-
-                            <div class="mb-3">
-                                <p>
-                                    {{ product.description }}
-                                </p>
-                            </div>
-							<div class="mb-3">
-                                <p>
-                                    Variants:
-                                    {% for variant in product.variants.all %}
-                                        {{ variant.name }},
-                                    {% endfor %}
-                                </p>
-                            </div>
-                            
-
-							
-                        </div>
-                    </main>
+        <h5>Edit the Details</h5>
+        <form method="POST" class="form">
+            {% csrf_token %}
+            <div class="form-group row">
+                <label for="id_name" class="col-sm-2 col-form-label">Name:</label>
+                <div class="col-sm-5">
+                    <input type="text" name="name" id="id_name" value="{{ product.name }}" class="form-control">
                 </div>
             </div>
-        </section>
+            <div class="form-group row">
+                <label for="id_description" class="col-sm-2 col-form-label">Description:</label>
+                <div class="col-sm-5">
+                    <textarea name="description" id="id_description" class="form-control">{{ product.description }}</textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
     </div>
-    <!-- Navbar End -->
+</div>
 
-       <!-- Button group -->
-       <div class="container mt-4">
-        <div class="btn-group" role="group" aria-label="Product Actions">
-            <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a>
-            {% if not product.product_deleted %}
-                <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Delete</a>
-            {% else %}
-                <a href="{% url 'revoke_product' product.id %}" class="btn btn-warning">Revoke</a>
-            {% endif %}
-            
+
+<div class="col-lg-12 grid-margin stretch-card ">
+    <div class="card p-3">
+        <h5>Select new variant to add</h5>
+        <form method="POST" action="{% url 'add_new_variant' %}">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product_id }}">
+            <select class="col-lg-3" name="variant">
+                {% for variant in variants %}
+                    <option value="{{ variant.id }}">{{ variant.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary mt-2">Add Variant</button>
+        </form>
+    </div>
+    
+</div>
+
+
+
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>Color Variant</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th></th>
+                            <th>Images</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product_variant in product.productvariant_set.all %}
+                            {% for product_variant_color in product_variant.productvariantcolor_set.all %}
+                                <tr>
+                                    <td>{{ product_variant.variant }}</td>
+                                    <td>{{ product_variant_color.color_variant }}</td>
+                                    <div class="bg-danger">
+                                    <form method="POST" action="{% url 'update_price_stock' %}">
+                                        {% csrf_token %}
+                                    <input type="hidden" name="product_variant_color_id" value="{{ product_variant_color.id }}">
+                                    <td><input type="number" name="price" value="{{ product_variant_color.price }}"></td>
+                                    <td><input type="number" name="stock" value="{{ product_variant_color.stock }}"></td>
+                                    <td> <button type="submit" class="btn btn-success me-2" role="button">Update</button></td>
+                                    </form>
+                                    </div>
+                                    <td>
+                                        <div class="row">
+                                            {% for product_image in product_variant_color.productimage_set.all %}
+                                                <div class="how-itemcart1">
+                                                    {% if product_image %}
+                                                        <div class="img-thumbnail">
+                                                            <img src="{{ product_image.image.url }}" alt="Product Image" class="img-fluid square-image">
+                                                        </div>
+                                                    {% else %}
+                                                        <p>No image available</p>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if product_variant_color.variant_deleted is True %}
+                                        <div class="mb-2">
+                                        <form method="POST" class="form" action="{% url 'mark_variant_revoked' %}">
+                                            <input type="hidden" name="product_id" value="{{ product_variant.id }}">
+                                            <input type="hidden" name="product_variant_color_id" value="{{ product_variant_color.id }}">
+                                            {% csrf_token %}
+                                        <button type="submit" class="btn btn-success me-2" role="button">Revoke</button>
+                                        </form>
+                                        </div>
+                                        
+                                        {% else %}
+                                        <div class="mb-2">
+                                        <form method="POST" class="form" action="{% url 'mark_variant_deleted' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="product_variant_color_id" value="{{ product.id }}">
+                                        <input type="hidden" name="product_variant_color_id" value="{{ product_variant_color.id }}">
+                                        <button type="submit" class="btn btn-danger me-2" role="button">Delete</button>
+                                        </form>
+                                         </div>
+                                        {% endif %}
+                                        <a class="btn btn-info" href="#" role="button">Edit</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
+
 {% endblock content %}
-
-{% block script %}
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('.imgBox').imgZoom({
-            boxWidth: 200,
-            boxHeight: 200,
-            marginLeft: 100,
-            origin: 'data-origin'
-        });
-    });
-</script>
-    
-<script type="text/javascript">
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-36251023-1']);
-    _gaq.push(['_setDomainName', 'jqueryscript.net']);
-    _gaq.push(['_trackPageview']);
-  
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  
-</script>
-
-{% endblock script %}

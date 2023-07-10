@@ -25,6 +25,7 @@ order view
 
 
  <div class="container">
+
    <table class="table table-bordered table-primary">
     <thead class="thead-light">
       <tr>
@@ -33,18 +34,48 @@ order view
           <th scope="col">Quantity</th>                
       </tr>
                             </thead>
-                            <tbody>
+                            <tbody></tbody>
                                 {% for orders in view_order %}
                               <tr>
                                 <th scope="row">{{orders.product}}</th>
                                 <td>{{orders.price}}</td>
                                 <td>{{orders.quantity}}</td>
                                 
-                               
+                         
                               </tr>
                           {% endfor %}
                             </tbody>
-                          </table>                    
+                          </table>  
+
+                          <div class="row">
+                           {% for order in view_order %}
+                              {% if forloop.first %}
+                              <div class="card bg-light">
+                                <div class="card-body text-center">
+                                  <h4>Order Details</h4>
+                                  <br>
+                                  <p class="card-text">Order ID : {{ order.order.id }}</p>
+
+                                </div>
+                              </div>
+                         
+                                  <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                      <h4>Shipping address</h4>
+                                      <br>
+                                      <p class="card-text">{{ order.order.address.first_name }}</p>
+                                      <p class="card-text">{{ order.order.address.phone_number }}</p>
+                                      <p class="card-text">{{ order.order.address.state }}</p>
+                                      <p class="card-text">{{ order.order.address.address_line_1 }}</p>
+                                      <p class="card-text">{{ order.order.address.address_line_2 }}</p>
+                                      <p class="card-text"> {{ order.order.address.email}}</p>
+                                      <p class="card-text">{{ order.order.address.postal_code }}</p>
+                                      <p class="card-text">{{ order.order.address.city }}</p>
+                                    </div>
+                                  </div>
+                              {% endif %}
+                          {% endfor %}
+                        </div>
         
 
             

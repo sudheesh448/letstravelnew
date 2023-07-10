@@ -15,13 +15,11 @@ from .models import Category
 
 
 
-def viewproduct(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Product
 
-    context = {
-        'product': product
-    }
-    return render(request, 'adminpages/viewproduct.html', context)
+
+
 
 
 
@@ -314,6 +312,77 @@ def Delivered_order(request,order_id):
             order.save()
     return redirect('ordertableadmin')
 
+
+
+
+
+
+def viewproduct(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description') 
+        product.name = name
+        product.description = description
+        product.save()   
+    category = product.category
+    variants = Variant.objects.filter(category_id=category.pk)
+    context = {
+        'product': product,
+        'variants':variants,
+    }
+    return render(request, 'adminpages/viewproduct.html', context)
+from django.shortcuts import get_object_or_404, redirect
+
+
+def mark_variant_deleted(request):
+    if request.method == 'POST':
+        product_variant_color_id = request.POST.get('product_variant_color_id')
+        product_variant_color = get_object_or_404(ProductVariantColor, id=product_variant_color_id)
+        product_variant_color.variant_deleted = True
+        product_variant_color.save()
+        product =  product_variant_color.product_variant.product
+        context = {
+        'product': product,
+         }
+        return render(request, 'adminpages/viewproduct.html', context)
+
+    
+def mark_variant_revoked(request):
+    if request.method == 'POST':
+        product_variant_color_id = request.POST.get('product_variant_color_id')
+        product_variant_color = get_object_or_404(ProductVariantColor, id=product_variant_color_id)
+        product_variant_color.variant_deleted = False
+        product_variant_color.save()
+        product =  product_variant_color.product_variant.product
+        context = {
+        'product': product,
+         }
+        return render(request, 'adminpages/viewproduct.html', context)
+    
+
+def update_price_stock(request):
+    if request.method == 'POST':
+        product_variant_color_id = request.POST.get('product_variant_color_id')
+        price = int(float(request.POST.get('price')))
+        stock = request.POST.get('stock')
+        product_variant_color = get_object_or_404(ProductVariantColor, id=product_variant_color_id)
+        product_variant_color.price = price
+        product_variant_color.stock = stock
+        product_variant_color.save()
+        product =  product_variant_color.product_variant.product
+        context = {
+        'product': product,
+         }
+        return render(request, 'adminpages/viewproduct.html', context)
+    
+
+def add_new_variant(request):
+    variant  = request.POST.get('variant')    
+    product_id = request.POST.get('product_id')
+    product_variant = ProductVariant.objects.create(product=product_id, variant=variant)
+    pass
 
 
 
