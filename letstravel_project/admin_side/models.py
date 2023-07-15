@@ -69,6 +69,7 @@
 #         return f"Review for {self.product.name} by {self.customer.username}"
 
 
+from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
@@ -162,3 +163,12 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.product_variant_color}"
+
+
+
+class PhoneNumber(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.phone_number

@@ -4,6 +4,14 @@
 
 {% block content %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<style type="text/css">
+    body { background-color:#fafafa;}
+        img{display: block;}
+        .imgBox{width: 300px;height: 300px;border: 1px solid #222;}
+		.zoom{ border : None;}
+    </style>
+	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="{% static 'products/js/jquery.imgzoom.js' %}"></script>
 
 	<!-- Product Detail -->
 	<!-- breadcrumb -->
@@ -23,6 +31,7 @@
 			<span class="stext-109 cl4">
 				{{product.name}}
 			</span>
+			</span>
 		</div>
 	</div>
 	<section class="sec-product-detail bg0 p-t-65 p-b-60">
@@ -38,9 +47,9 @@
 								{% for product_image in productvariantcolor.productimage_set.all %}
 								  {% if forloop.first %}
 									<!-- Main Image -->
-									<div class="item-slick3 active" data-thumb="{{ product_image.image.url }}">
-									  <div class="wrap-pic-w pos-relative">
-										<img src="{{ product_image.image.url }}" alt="IMG-PRODUCT">
+									<div class="item-slick3 active imgbox" data-thumb="{{ product_image.image.url }}">
+									  <div class="wrap-pic-w pos-relative imgbox zoom">
+										<img class="imgbox zoom" src="{{ product_image.image.url }}" alt="IMG-PRODUCT" data-origin="{{ product_image.image.url }}">
 										<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ product_image.image.url }}">
 										  <i class="fa fa-expand"></i>
 										</a>
@@ -48,9 +57,9 @@
 									</div>
 								  {% else %}
 									<!-- Additional Images -->
-									<div class="item-slick3" data-thumb="{{ product_image.image.url }}">
-									  <div class="wrap-pic-w pos-relative">
-										<img src="{{ product_image.image.url }}" alt="IMG-PRODUCT">
+									<div class="item-slick3 imgbox" data-thumb="{{ product_image.image.url }}">
+									  <div class="wrap-pic-w pos-relative imgbox">
+										<img class="imgbox" src="{{ product_image.image.url }}" alt="IMG-PRODUCT" data-origin="{{ product_image.image.url }}">
 										<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ product_image.image.url }}">
 										  <i class="fa fa-expand"></i>
 										</a>
@@ -628,7 +637,31 @@
 			</div>
 		</div>
 	</section>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script> 
 	
+	
+	
+	<script>
+	  $(document).ready(function() {
+		$('.zoom').elevateZoom({
+		  zoomWindowWidth: 400, 
+		  zoomWindowHeight: 400
+		});
+	  });
+	</script>
+
+<script type="text/javascript">
+        $('.imgBox').imgZoom({
+            boxWidth: 400,
+            boxHeight: 400,
+            marginLeft: 5,
+            origin: 'data-origin'
+        });
+</script>
+
+
 
 <script>
 	$(document).ready(function() {

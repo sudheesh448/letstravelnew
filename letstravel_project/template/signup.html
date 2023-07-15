@@ -5,6 +5,15 @@
 {% block content %}
                 <form action="{% url 'register' %}" method="post" style="width: 23rem;">
                     {% csrf_token %} 
+                    {% if messages %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for message in messages %}
+                            <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
             
 
                     <h3 class="fw-normal mb-3  pb-3" style="letter-spacing: 1px;">Sign Up</h3>

@@ -48,10 +48,17 @@ urlpatterns = [
     path('revokecustomer/<int:customer_id>/', customer_view.revokecustomer, name='revokecustomer'),
 
     path('ordertableadmin',product_view_add_category.ordertableadmin,name="ordertableadmin"),
+    path('cancel_orders_admin/<int:order_id>', product_view_add_category.cancel_orders_admin, name='cancel_orders_admin'), 
     path('order_viewadmin/<int:order_id>',product_view_add_category.order_viewadmin,name='order_viewadmin'),
     path('Shipped_order/<int:order_id>',product_view_add_category.Shipped_order,name='Shipped_order'), 
-    path('Delivered_order/<int:order_id>',product_view_add_category.Delivered_order,name='Delivered_order'), 
+    path('Delivered_order/<int:order_id>',product_view_add_category.Delivered_order,name='Delivered_order'),
 
+
+    path('revenue_chart_data/', views.revenue_chart_data, name='revenue_chart_data'), 
+    path('payment_chart_data/', views.payment_chart_data, name='payment_chart_data'), 
+    path('order_status_chart_data/', views.order_status_chart_data, name='order_status_chart_data'), 
+    path('revenue_chart_line/', views.revenue_chart_line, name='revenue_chart_line'), 
+    
     ]
 
 

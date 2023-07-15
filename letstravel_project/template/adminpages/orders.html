@@ -39,8 +39,8 @@
                                     <td class="text-white" style="padding: 5px;">{{ order.order_date }}</td>
                                     <td class="text-white" style="padding: 5px;">{{ order.delivery_date }}</td>
                                     <td class="text-white">
-                                        {% if order.status == 'PENDING' %}
-                                            <a href="{% url 'cancel_orders' order.id %}">
+                                        {% if order.status == 'PENDING' or order.status == 'Payment Recieved' %}
+                                            <a href="{% url 'cancel_orders_admin' order.id %}">
                                                 <button type="button" class="btn btn-danger btn-sm mb-2">Cancel</button>
                                             </a>
                                         {% endif %}

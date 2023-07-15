@@ -1,3 +1,4 @@
+import calendar
 from django.shortcuts import get_object_or_404, render
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
@@ -9,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control,never_cache
 
 from admin_side.forms import ImageForm
+from order.models import Order
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -37,16 +39,41 @@ def adminlogin(request):
                 return redirect('adminlogin')
         return render(request,'adminpages/login.html') 
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='adminlogin')
 @never_cache
 def dashboard(request):
     if request.user.is_superuser:
         users_data=User.objects.all()
-        return render(request,'adminpages/dashboard.html',{'users':users_data})
+        total_orders = Order.get_total_orders()
+        total_orders_week=Order.get_orders_count_week()
+        total_orders_month=Order.get_orders_count_month()
+        total_orders_day=Order.get_orders_count_day()
+        total_revenue = Order.get_total_revenue()
+        total_revenue_month=Order.get_total_revenue_month()
+        total_revenue_week=Order.get_total_revenue_week()
+        total_revenue_day=Order.get_total_revenue_day()
+
+
+
+        context={ 
+            'users_data':users_data,
+            'total_orders':total_orders,
+            'total_orders_week':total_orders_week,
+            'total_orders_month': total_orders_month,
+            'total_orders_day':total_orders_day,
+            'total_revenue':total_revenue,
+            'total_revenue_month':total_revenue_month,
+            'total_revenue_week':total_revenue_week,
+            'total_revenue_day':total_revenue_day
+        }
+        return render(request,'adminpages/dashboard.html',context)
     else:
         return redirect('home')
     
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='adminlogin')
 def admin_logout(request):
@@ -56,59 +83,11 @@ def admin_logout(request):
 
 
 
-
-
-
-
 #add product
 from django.shortcuts import render, redirect
 from .models import Category, ColorVariant, Product, ProductImage, ProductVariant, Variant
 
 
-# def add_product(request):
-    
-
-#     if request.method == 'POST':
-        
-#             category_id = request.POST.get('category')
-#             variant_id=request.POST.get('variant')
-
-#             name = request.POST.get('product_name')
-#             tags = request.POST.get('product_tags')
-#             quantity_left = request.POST.get('quantity_left')
-#             description = request.POST.get('product_description')
-            
-#             color_variant_id = request.POST.get('colour')
-#             price = request.POST.get('product_price')
-#             code = request.POST.get ('product_code')
-
-#             category = Category.objects.get(id=category_id)
-#             variant = Variant.objects.get(id=variant_id)
-
-#             product = Product(
-#                 name=name,
-#                 tags=tags,
-#                 quantity_left=quantity_left,
-#                 description=description,
-#                 color_variant_id=color_variant_id,
-#                 price=price,
-#                 product_code=code,
-#                 category=category, 
-#                 variant=variant
-#             )
-
-#             product.save()
-
-#             request.session['last_product_key'] = product.pk
-#             print(request.session.get('last_product_key'))
-#             return redirect('upload_images')
-#     categories = Category.objects.all()
-#     colors = ColorVariant.objects.all()
-
-#     return render(request, 'adminpages/add_product.html', {
-#         'categories': categories,
-#         'colors': colors
-#     })
 
 
 
@@ -175,11 +154,6 @@ def add_product(request):
 
 
 
-
-
-
-
-
 from django.shortcuts import render, redirect
 from .models import ProductVariantColor
 
@@ -230,8 +204,6 @@ def save_product_variant_color(request):
         return redirect('error')  # Redirect to an error page or handle the case differently
 
 
-
-
 from django.http import JsonResponse
 def get_color_checkboxes(request):
     if request.method == "GET":
@@ -241,83 +213,6 @@ def get_color_checkboxes(request):
         return JsonResponse({"message": "Invalid request method"})
 
 
-
-
-
-#upload images
-
-
-# def upload_images(request,product_variant_color_id):
-    
-        
-#         uploaded_images= ProductImage.objects.filter(product_variant_color_id=product_variant_color_id)
-#         product_id = request.session['last_product_key']
-#         product = Product.objects.get(product_id)
-#         product_name = product.name
-#         product_variant_color = ProductVariantColor.objects.get(pk=product_variant_color_id)
-        
-
-
-        
-
-#         form = ImageForm(request.POST or None, request.FILES or None)
-#         if form.is_valid():
-#             print("valid")
-#             image = form.save(commit=False)
-#             image.product_id = product_variant_color_id
-#             image.save()
-#             return JsonResponse({'message': 'Image uploaded successfully.'})
-
-#         context = {'form': form , 'images':uploaded_images , 'name': product_name, 'product_id':product_id}
-        
-#         return render(request, 'adminpages/upload_images.html', context)
-    
-
-#          #return redirect('add_product')from django.shortcuts import get_object_or_404
-
-
-
-
-from django.shortcuts import get_object_or_404
-
-# def upload_images(request, product_variant_color_id):
-#     # Retrieve the product variant color object using the provided ID
-#     product_variant_color = get_object_or_404(ProductVariantColor, pk=product_variant_color_id)
-
-#     # Retrieve the associated product variant object
-#     product_variant = product_variant_color.product_variant
-
-#     # Retrieve the product name using the product variant
-#     product_name = product_variant.product.name
-
-#     # Retrieve the variant name from the product variant
-#     variant_name = product_variant.variant.name
-
-#     # Retrieve the color name from the color variant
-#     color_name = product_variant_color.color_variant.color
-
-#     # Rest of your code
-#     uploaded_images = ProductImage.objects.filter(product_variant_color_id=product_variant_color_id)
-#     product_id = request.session['last_product_key']
-
-#     form = ImageForm(request.POST or None, request.FILES or None)
-#     if form.is_valid():
-#         print("valid")
-#         image = form.save(commit=False)
-#         image.product_variant_color_id = product_variant_color_id
-#         image.save()
-#         return JsonResponse({'message': 'Image uploaded successfully.'})
-
-#     context = {
-#         'form': form,
-#         'images': uploaded_images,
-#         'name': product_name,
-#         'product_id': product_id,
-#         'variant_name': variant_name,
-#         'color_name': color_name
-#     }
-        
-#     return render(request, 'adminpages/upload_images.html', context)
 
 
 def upload_images(request, product_variant_color_id):
@@ -360,4 +255,128 @@ def upload_images(request, product_variant_color_id):
     return render(request, 'adminpages/upload_images.html', context)
 
 
+from datetime import datetime, timedelta
+from django.db.models import Sum,Count
+from django.utils import timezone
 
+def revenue_chart_data(request):
+    # Calculate the start and end dates for the past 7 days
+    end_date = timezone.now().date()
+    start_date = end_date - timedelta(days=6)
+
+    # Query the Order model to get the revenue for each day
+    revenue_data = Order.objects.filter(order_date__date__range=(start_date, end_date)).values('order_date__date').annotate(revenue=Sum('total_price')).order_by('order_date__date')
+
+    # Prepare the data for the chart
+    labels = []
+    revenue = []
+    for data in revenue_data:
+        labels.append(data['order_date__date'].strftime('%Y-%m-%d'))
+        revenue.append(data['revenue'])
+
+    # Return the data as a JSON response
+    data = {
+        'labels': labels,
+        'datasets': [{
+            'label': 'Revenue',
+            'data': revenue,
+            'backgroundColor': 'rgba(255, 99, 132, 0.2)',
+            'borderColor': 'rgba(255, 99, 132, 1)',
+            'borderWidth': 1,
+            'fill': False
+        }]
+    }
+    return JsonResponse(data)
+
+def payment_chart_data(request):
+    # Query the Order model to count the number of orders for each payment method
+    payment_data = Order.objects.values('payment_method').annotate(count=Count('payment_method'))
+
+    # Prepare the data for the chart
+    labels = []
+    counts = []
+    for data in payment_data:
+        labels.append(data['payment_method'])
+        counts.append(data['count'])
+
+    # Return the data as a JSON response
+    data = {
+        'labels': labels,
+        'datasets': [{
+            'data': counts,
+            'backgroundColor': [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+                'rgba(255, 159, 64, 0.5)'
+            ],
+            'borderColor': [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+        }],
+    }
+    return JsonResponse(data)
+
+
+def order_status_chart_data(request):
+    order_status_data = Order.objects.values('status').annotate(count=Count('status')).order_by()
+    labels = []
+    counts = []
+    for data in order_status_data:
+        labels.append(data['status'])
+        counts.append(data['count'])
+    data = {
+        'labels': labels,
+        'datasets': [{
+            'data': counts,
+            'backgroundColor': [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#79FBE7',
+                
+            ],
+            'hoverBackgroundColor': [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#79FBE7',
+                
+            ]
+        }]
+    }
+    return JsonResponse(data)
+
+def revenue_chart_line(request):
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=30*6)  # Past 6 months
+
+    revenue_data = Order.objects.filter(order_date__date__range=(start_date, end_date)).values('order_date__month').annotate(revenue=Sum('total_price')).order_by('order_date__month')
+
+    labels = []
+    revenue = []
+    for data in revenue_data:
+        month_number = data['order_date__month']
+        month_name = calendar.month_name[month_number]
+        labels.append(month_name)
+        revenue.append(data['revenue'])
+
+    data = {
+        'labels': labels,
+        'datasets': [{
+            'label': 'Revenue',
+            'data': revenue,
+            'backgroundColor': 'rgba(255, 99, 132, 0.2)',
+            'borderColor': 'rgba(255, 99, 132, 1)',
+            'borderWidth': 1,
+            'fill': False
+        }]
+    }
+    return JsonResponse(data)

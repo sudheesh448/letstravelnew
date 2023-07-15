@@ -1,11 +1,132 @@
 {% extends 'products/productbase.html' %}
 
 {% block title %}
-address
-{% endblock  %}
+Address
+{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container bg-light">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+      <a href="index.html" class="stext-109 cl-dark hov-cl1 trans-04">
+          Home
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      </a>
+      <span class="stext-109 cl-dark">
+          Shopping Cart
+      </span>
+  </div>
+</div>
+
+<div class="bg-white p-t-75 p-b-85">
+  <div class="container">
+      <h2 class="mb-4 text-dark font-weight-bold">Select Address and Payment Method</h2>
+      <div class="row align-items-center">
+          <div class="col">
+              <h4 class="mb-4 text-dark font-weight-bold">Select an Address Option</h4>
+          </div>
+          <div class="col text-end">
+              <a href="{% url 'add_address' %}" class="btn btn-primary">ADD NEW ADDRESS</a>
+          </div>
+      </div>
+
+      <div class="row">
+          <div class="col-lg-10 col-xl-7 m-lr-auto m-b-100">
+              <div class="row px-4">
+                  {% for user_add in address %}
+                  <div class="card border-light mb-3" id="card-{{ user_add.id }}" style="max-width: 18rem;">
+                      <div class="card-header bg-dark text-white">Address{{ user_add.id }}</div>
+                      <div class="card-body">
+                          <h5 class="card-title">{{ user_add.first_name }} {{ user_add.last_name }}</h5>
+                          <p class="card-text">{{ user_add.email }}</p>
+                          <p class="card-text">
+                              {{ user_add.address_line_1 }}
+                              {{ user_add.city }}, {{ user_add.state }},
+                              {{ user_add.country }}, {{ user_add.postal_code }}
+                          </p>
+                          <p class="card-text">Ph: {{ user_add.phone_number }}</p>
+                          <div class="d-flex justify-content-between">
+                              <div class="d-grid gap-2">
+                                  <a href="{% url 'edit_address' address_id=user_add.id %}" class="btn btn-dark">Edit Address</a>
+                              </div>
+                              <div class="d-grid gap-2">
+                                  <button class="btn btn-light use-address-btn" data-address-id="{{ user_add.id }}" onclick="changeButtonColor(this)">Use Address</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  {% endfor %}
+              </div>
+          </div>
+          <div class="col-lg-4 offset-lg-1">
+              <div class="row justify-content-end align-items-center p-t-3 p-b-15 p-lr-15 p-lr-15-sm" >
+                  <div class="col-auto">
+                      <button id="codButton" class="flex-c-m stext-101 btn cl-dark bg-secondary border-0 p-lr-15 trans-04 pointer m-tb-10" disabled>
+                          Cash on Delivery
+                      </button>
+                      <button id="payNowButton" class="flex-c-m stext-101 btn cl-dark bg-primary border-0 p-lr-15 trans-04 pointer m-tb-10" disabled>
+                          Pay Now
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  function changeButtonColor(button) {
+      button.classList.add("btn-success"); // Add the desired class for the clicked state
+      button.classList.remove("btn-light"); // Remove the default class for the unclicked state
+  }
+</script>
+<script>
+    $(document).ready(function () {
+    var selectedAddressId = null;
+
+    $(".use-address-btn").click(function () {
+        // Remove active class from all cards
+        $(".card").removeClass("active");
+
+        // Add active class to the selected card
+        var addressId = $(this).data("address-id");
+        $("#card-" + addressId).addClass("active");
+
+        // Set the selected address ID
+        selectedAddressId = addressId;
+        console.log(selectedAddressId)
+
+        // Enable the buttons
+        $("#codButton").removeAttr("disabled");
+        $("#payNowButton").removeAttr("disabled");
+    });
+
+    $("#codButton").click(function () {
+        // Redirect to the view function with the selected address ID as a parameter
+        window.location.href = "{% url 'cod' %}?address_id=" + selectedAddressId;
+    });
+
+    $("#payNowButton").click(function () {
+        // Redirect to the view function with the selected address ID as a parameter
+        window.location.href = "{% url 'pay_now' %}?address_id=" + selectedAddressId;
+    });
+});
+
+</script>
+
+{% endblock content  %}
+
+
+
+
+
+
+
+
+
+
+<!-- <div class="container">
     <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
         <a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
             Home
@@ -20,7 +141,7 @@ address
     
 
 <!-- Shoping Cart -->
-<br>
+<!-- <br>
 
     <div class="bg0 p-t-75 p-b-85" >
     <div class="container">
@@ -69,5 +190,5 @@ address
         </div>
     </div>
 </div>
+ -->
 
-{% endblock  %}

@@ -14,37 +14,6 @@ from admin_side.models import ProductImage
 from admin_side.models import ColorVariant
 
 
-# def home(request):
-#     # Assuming 'Product' is your model and you want to fetch all products
-#     all_products = Product.objects.all()
-
-#     # Number of items per page
-#     items_per_page = 10
-
-#     # Create a Paginator object
-#     paginator = Paginator(all_products, items_per_page)
-
-#     # Get the current page number from the request's GET parameters
-#     page_number = request.GET.get('page')
-
-#     # Get the Page object for the requested page number
-#     page = paginator.get_page(page_number)
-
-#     context = {
-#         'products': page,
-#     }
-
-#     return render(request, 'products/index.html', context)
-
-
-
-
-
-
-
-
-
-
 def home(request, category_id=None):
     # Assuming 'Product' is your model and you want to fetch all products
     query = request.GET.get('query')
@@ -55,7 +24,7 @@ def home(request, category_id=None):
     if category_id is not None:
         # Category ID is provided
         # Filter products based on the category ID
-        all_products = all_products.filter(category_id=category_id)
+        products = products.filter(category_id=category_id)
 
     # Number of items per page
     items_per_page = 10

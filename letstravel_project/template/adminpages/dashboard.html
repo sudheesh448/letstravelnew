@@ -1,2 +1,331 @@
 {% extends 'adminpages/baseadmin.html' %}
+{%load static%}
+
 {% block title %} Admin Dashboard {% endblock title %}
+{% block content %}
+
+<div class="row">
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{total_orders}}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-success ">
+                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total orders</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{ total_orders_month }}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+11%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-success">
+                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total orders of the month</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{total_orders_week}}</h3>
+                          <p class="text-danger ml-2 mb-0 font-weight-medium">-2.4%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-danger">
+                          <span class="mdi mdi-arrow-bottom-left icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total No of Orders of The Week</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{ total_orders_day }}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-success ">
+                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total No Orders of The Day</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{total_revenue}}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-success ">
+                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total revenue</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{ total_revenue_month }}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+11%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-success">
+                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total revenue of the month</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{total_revenue_week}}</h3>
+                          <p class="text-danger ml-2 mb-0 font-weight-medium">-2.4%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-danger">
+                          <span class="mdi mdi-arrow-bottom-left icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total revenue of the week</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="d-flex align-items-center align-self-start">
+                          <h3 class="mb-0">{{ total_revenue_day }}</h3>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="icon icon-box-success ">
+                          <span class="mdi mdi-arrow-top-right icon-item"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <h6 class="text-muted font-weight-normal">Total revenue of the day</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                  <div class="card-body">
+                      <h4 class="card-title">Revenue chart</h4>
+                      <canvas id="revenueChart" style="height: 250px"></canvas>
+                  </div>
+              </div>
+          </div>
+          <div class="col-lg-6 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Revenue Trend</h4>
+                <canvas id="revenueChartline" style="height: 250px"></canvas>
+              </div>
+            </div>
+          </div>
+          
+      </div>
+      <div class="row">
+
+        <div class="col-lg-6 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Order Status Distribution</h4>
+              <canvas id="orderStatusChart" style="height: 250px"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title">Payment Method Distribution</h4>
+              <canvas id="paymentChart" style="height: 250px"></canvas>
+            </div>
+          </div>
+        </div>
+        
+
+      </div>
+    
+
+      
+      
+      
+      <script src="{% static 'adminpage/js/chart/chart.js' %}"></script>
+      <script src="{% static 'adminpage/js/chart/chart.min.js' %}"></script>
+      
+      <script>
+          $(function() {
+              // Fetch the revenue data from the server
+              $.ajax({
+                  url: "{% url 'revenue_chart_data' %}",
+                  method: "GET",
+                  success: function(data) {
+                      // Create the revenue chart
+                      var ctx = document.getElementById('revenueChart').getContext('2d');
+                      var chart = new Chart(ctx, {
+                          type: 'bar',
+                          data: data,
+                          options: {
+                              scales: {
+                                  yAxes: [{
+                                      ticks: {
+                                          beginAtZero: true
+                                      },
+                                      gridLines: {
+                                          color: "rgba(204, 204, 204,0.1)"
+                                      }
+                                  }],
+                                  xAxes: [{
+                                      gridLines: {
+                                          color: "rgba(204, 204, 204,0.1)"
+                                      }
+                                  }]
+                              },
+                              legend: {
+                                  display: false
+                              },
+                              elements: {
+                                  point: {
+                                      radius: 0
+                                  }
+                              }
+                          }
+                      });
+                  }
+              });
+          });
+      </script>
+
+<script>
+  $(function() {
+    // Fetch the revenue data from the server
+  
+
+    // Fetch the payment data from the server
+    $.ajax({
+      url: "{% url 'payment_chart_data' %}",
+      method: "GET",
+      success: function(data) {
+        console.log("hiii")
+        var ctx = document.getElementById('paymentChart').getContext('2d');
+        var paymentChart = new Chart(ctx, {
+          type: 'pie',
+          data: data,
+          options: {
+            // Chart options for payment chart
+          }
+        });
+      }
+    });
+  });
+</script>
+
+<script>
+$(function() {
+  $.ajax({
+    url: "{% url 'order_status_chart_data' %}",
+    method: "GET",
+    success: function(data) {
+      var ctx = document.getElementById('orderStatusChart').getContext('2d');
+      var orderStatusChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+          // Chart options for the donut chart
+        }
+      });
+    }
+  });
+});
+
+</script>
+
+<script>
+
+$(function() {
+  $.ajax({
+    url: "{% url 'revenue_chart_line' %}",
+    method: "GET",
+    success: function(data) {
+      var ctx = document.getElementById('revenueChartline').getContext('2d');
+      var revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+          // Chart options for the line chart
+        }
+      });
+    }
+  });
+});
+
+</script>
+
+
+{% endblock content %}
