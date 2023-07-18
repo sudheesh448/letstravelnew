@@ -1,0 +1,122 @@
+{% extends 'adminpages/baseadmin.html' %}
+
+{% block title %}Coupon List{% endblock title %}
+
+{% block content %}
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title text-danger">Coupon List</h4>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="bg-primary text-light">ID</th>
+              <th class="bg-primary text-light">Code</th>
+              <th class="bg-primary text-light">Dscnt</th>
+              <th class="bg-primary text-light">Expiry</th>
+              <th class="bg-primary text-light">Count</th>
+              <th class="bg-primary text-light">Is %</th>
+              <th class="bg-primary text-light">Min Odr</th>
+              <th class="bg-primary text-light">Max Dscnt</th>
+              <th class="bg-primary text-light">Status</th>
+              <th class="bg-primary text-light">Claimed</th>
+              <th class="bg-primary text-light">Amount</th>
+              <th class="bg-primary text-light">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for coupon in page_obj %}
+            <tr>
+              <td class="text-light">{{ coupon.id }}</td>
+              <td class="text-light">{{ coupon.code }}</td>
+              <td class="text-light">{{ coupon.discount }}</td>
+              <td class="text-light">
+                {% if coupon.is_expired %}
+                  Expired on <br> {{ coupon.expiry_date }}
+                {% else %}
+                  {{ coupon.expiry_date }}
+                {% endif %}
+              </td>
+              <td class="text-light">{{ coupon.available }}</td>
+              <td class="text-light">{{ coupon.is_percentage }}</td>
+              <td class="text-light">{{ coupon.min_order_total }}</td>
+              <td class="text-light">{{ coupon.max_discount_amount }}</td>
+              <td class="text-light">
+                {% if coupon.is_active %}
+                  Active
+                {% else %}
+                  Inactive
+                {% endif %}
+              </td>
+              <td class="text-light">{{ coupon.total_cliamed }}</td>
+              <td class="text-light">{{ coupon.total_amount_cliamed }}</td>
+              <td>
+                {% if not coupon.is_expired %}
+                <form action="{% url 'change_coupon_status' coupon.id %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">
+                    {% if coupon.is_active %}
+                      Freeze
+                    {% else %}
+                      Activate
+                    {% endif %}
+                  </button>
+                </form>
+                
+                {% endif %}
+                <a href="{% url 'edit_coupon' coupon.id %}" class="btn btn-primary mt-1">Edit</a> <!-- Add the Edit button -->
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="12">No coupons available</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Pagination links -->
+<nav aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1">First</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+        </li>
+      {% endif %}
+  
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+  
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+</div>
+</div>
+
+{% endblock %}

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 import razorpay
 from cart.models import Cart
 from cart.models import CartItem
+from discount.models import UserCoupon
 from order.models import OrderItem
 from order.models import Order
 from userprofile.models import UserAddress
@@ -133,9 +134,6 @@ def online_payment_order(request,user_add_id):
         payment_id = request.POST.getlist('payment_id')[0]
         orderId = request.POST.getlist('orderId')[0]
         signature = request.POST.getlist('signature')[0]
-
-
-
         
         user_add = UserAddress.objects.get(id=user_add_id, user=request.user)
         carts = Cart.objects.get(user=request.user)
@@ -152,13 +150,23 @@ def online_payment_order(request,user_add_id):
         order = Order.objects.create(
         user=request.user,
         address=user_add,
+        total_price_before_discount = carts.total_price_before_discount,
         total_price=carts.total_price, 
         status='Payment Recieved',
         payment_method='RAZORPAY',
         razorpay_payment_id=payment_id,
         razorpay_payment_signature=signature,
         razorpay_order_id = orderId,
-        )  
+        )
+
+
+        user_coupons = UserCoupon.objects.filter(user=request.user, used=False)
+        for user_coupon in user_coupons:
+                user_coupon.used = True
+                user_coupon.order = order
+                user_coupon.save()
+
+
 
         for cart_item in items:
             OrderItem.objects.create(

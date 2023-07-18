@@ -33,6 +33,7 @@ class Order(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.ForeignKey(UserAddress, on_delete=models.CASCADE)
+    total_price_before_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_price = models.FloatField(null=False)
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='ordered')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)

@@ -22,8 +22,6 @@
     
 
 <!-- Shoping Cart -->
-
-   
     <div class="bg0 p-t-75 p-b-85" >
     <div class="container">
         <div class="row">
@@ -36,9 +34,6 @@
                                 <th class="column-2"></th>
                                 <th class="column-2">Price</th>
                                 <th class="column-2 text-center">Quantity</th>
-                                
-                                
-                           
                             <th class="column-3">Total Price</th>
                                 <th class="column-3">Actions</th>
                             </thead>
@@ -49,17 +44,13 @@
                                         {% with product_image=cart_item.product_variant_color.productimage_set.first %}
                                         <img src="{{product_image.image.url }}" alt="IMG">
                                         {% endwith %}
-                                    </div>
-                                   
-                                </td>
-                                
+                                    </div>   
+                                </td> 
                                 <td class="column-2"> {{ cart_item.product_variant_color.product_variant.product.name }} <br>
                                     {{ cart_item.product_variant_color.product_variant.variant.name }} <br>
                                     {{ cart_item.product_variant_color.color_variant.color }}</td>
                                 <td class="column-3">$ {{ cart_item.price}}</td>
-                                
-                                
-                               
+
                                 <!-- <td class=" text-center column-4"> -->
                                     <!-- <div class="qty-btn d-flex">
                                         <div class="quantity">
@@ -68,25 +59,31 @@
                                             <span class="qty-plus" onclick="var effect = document.getElementById('qty{{ carts.id }}'); var qty = effect.value; if( !isNaN( qty )) { effect.value++; updateQuantity({{ carts.id }}, effect.value); } return false;"><i class="fa fa-plus" aria-hidden="true"></i></span>
                                         </div>
                                     </div> -->
-
                                     <td class="column-4">
                                         <div class="wrap-num-product flex-w m-l-auto m-r-0">
-                                            <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-                                                <i class="fs-16 zmdi zmdi-minus" data-Cart-item-id="{{ Cart_item_id }}"></i>
-                                            </div>
-                                    
-                                            <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product1" value="{{ cart_item.quantity }}" min="1">
-                                    
-                                            <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-                                                <i class="fs-16 zmdi zmdi-plus" data-Cart-item-id="{{ Cart_item_id }}"></i>
-                                            </div>
+                                            <form action="{% url 'decrement_quantity' %}" method="POST" class="quantity-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="item_id" value="{{ cart_item.id }}">
+                                                <button type="submit" class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+                                                    <i class="fs-16 zmdi zmdi-minus" ></i>
+                                                </button>
+                                            </form>
+                                            <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product1" value="{{ cart_item.quantity }}" min="1" disabled>   
+                                            <form action="{% url 'increment_quantity' %}" method="POST" class="quantity-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="item_id" value="{{ cart_item.id }}">
+                                                <button type="submit" class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
+                                                    <i class="fs-16 zmdi zmdi-plus" ></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                     
+  
 
                                 <!-- </td> -->
-                                
                                 <td class="text-center">{{ cart_item.subtotal}}</td>
+                                
                               
                                 <td class=" text-center column-4">
                                     <form method="POST" action="{% url 'remove_from_cart' %}">
@@ -94,26 +91,33 @@
                                         <input type="hidden" name="item_id" value="{{ cart_item.id }}">
                                         <button type="submit">Remove</button>
                                     </form>
-                                </td>
+                                </td> 
                             </tr>
-                   
-
-{% endfor %}
-                        </table>
+                            {% endfor %}
+                            {% if messages %}
+                            <div class="messages">
+                                {% for message in messages %}
+                                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    {{ message }}
+                                  </div>
+                                {% endfor %}
+                              </div>
+                            {% endif %}
+                        </table> 
                     </div>
-
                     <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-                        <div class="flex-w flex-m m-r-20 m-tb-5">
-                            <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
-                                
-                            <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-                                Apply coupon
+                        <form method="POST" action="{% url 'apply_coupon' %}">
+                            {% csrf_token %}
+                            <div class="flex-w flex-m m-r-20 m-tb-5">
+                                <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
+                                <button type="submit" class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
+                                    Apply coupon
+                                </button>
                             </div>
-                        </div>
-
-                        <div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-                            Update Cart
-                        </div>
+                        </form>  
                     </div>
                 </div>
             </div>
@@ -139,20 +143,26 @@
                     </div>
 
                     <div class="flex-w flex-t bor12 p-t-15 p-b-30">
-                        <div class="size-208 w-full-ssm">
-                            <span class="stext-110 cl2">
-                                Shipping:
-                            </span>
-                        </div>
+
+                        <span class="mtext-110 cl2">
+                            Total:{{cart.total_price_before_discount}}
+                        </span>
+                        
+                        
+                                {% for coupon in applied_coupons %}
+                                <p>Applied coupon Code: {{ coupon.coupon.code }}</p>
+                                <p>Discounted Amount: {{ coupon.amount_discounted }}</p>
+                            {% endfor %}
+                            
 
                         <div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
                             <p class="stext-111 cl6 p-t-2">
-                           0 tax
+                           
                             </p>
                             
                             <div class="p-t-15">
                                 <span class="stext-112 cl8">
-                                    Calculate
+                                    
                                 </span>
                                     
                             </div>
@@ -160,9 +170,9 @@
                     </div>
 
                     <div class="flex-w flex-t p-t-27 p-b-33">
-                        <div class="size-208">
+                        <div class="">
                             <span class="mtext-101 cl2">
-                                Total:{{cart.total_price}}
+                                To be paid:{{cart.total_price}} 
                             </span>
                         </div>
 
@@ -183,122 +193,4 @@
     </div>
 </div>
 
-
-<script>
-    // JavaScript code to handle button clicks and update quantity in the database
-    const minusButtons = document.querySelectorAll('.btn-num-product-down');
-    const plusButtons = document.querySelectorAll('.btn-num-product-up');
-
-    minusButtons.forEach((minusButton) => {
-        minusButton.addEventListener('click', function() {
-            const CartItemId = this.getAttribute('data-cart-item-id');
-            decrementQuantityInDatabase(CartItemId);
-        });
-    });
-
-    plusButtons.forEach((plusButton) => {
-        plusButton.addEventListener('click', function() {
-            const CartItemId = this.getAttribute('data-cart-item-id');
-            incrementQuantityInDatabase(CartItemId);
-        });
-    });
-
-    function decrementQuantityInDatabase(CartItemId) {
-        // Send AJAX request to decrement the quantity in the database
-        const csrfToken = '{{ csrf_token }}'; // Replace with your actual CSRF token
-        const url = '/decrement_quantity/'; // Replace with the URL to your Django view that handles decrementing the quantity
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
-            },
-            body: JSON.stringify({
-                cart_item_id: CartItemId,
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Quantity decremented successfully');
-                // Continue with any additional logic or UI updates here
-            } else {
-                console.error('Error decrementing quantity:', data.message);
-                // Handle any error notifications or fallback actions here
-            }
-        })
-        .catch(error => {
-            console.error('Error decrementing quantity:', error);
-            // Handle any error notifications or fallback actions here
-        });
-    }
-
-    function incrementQuantityInDatabase(CartItemId) {
-        // Send AJAX request to increment the quantity in the database
-        const csrfToken = '{{ csrf_token }}'; // Replace with your actual CSRF token
-        const url = '/increment_quantity/'; // Replace with the URL to your Django view that handles incrementing the quantity
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
-            },
-            body: JSON.stringify({
-                cart_item_id: CartItemId,
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Quantity incremented successfully');
-                // Continue with any additional logic or UI updates here
-            } else {
-                console.error('Error incrementing quantity:', data.message);
-                // Handle any error notifications or fallback actions here
-            }
-        })
-        .catch(error => {
-            console.error('Error incrementing quantity:', error);
-            // Handle any error notifications or fallback actions here
-        });
-    }
-</script>
-
-
-
-
-
-
-
-<script>
-    function updateQuantity(productId, quantity) {
-      $.ajax({
-        type: "POST",
-        url: "/update_quantity",  // Replace with the actual URL of your Django view
-        headers: { "X-CSRFToken": "{{ csrf_token }}" }, // Add this line to include the CSRF token
-        data: {
-            product_id: productId,
-            quantity: quantity
-          },
-          dataType: 'json',  // Expect JSON response from the server
-          success: function(response) {
-              console.log(response.price);
-              console.log(response.quantity);
-              if (response.success) {
-                  // Update the displayed quantity and price
-                  $("#price-" + productId).text(response.price);
-            $("#quantity-" + productId).text(response.quantity);
-            console.log("Quantity updated successfully!");
-          } else {
-            console.log("Quantity update failed:", response.message);
-          }
-        },
-        error: function(xhr, errmsg, err) {
-          console.log("Error updating quantity:", errmsg);
-        }
-      });
-    }
-  </script>
 {% endblock%}%

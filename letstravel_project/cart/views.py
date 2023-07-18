@@ -1,13 +1,15 @@
 from django.shortcuts import redirect, render
-
-# Create your views here.
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-
 from admin_side.models import ProductVariantColor
 from cart.models import Cart,CartItem
 from cart.models import CartItem
-from cart import models
+from django.contrib import messages
+from django.shortcuts import redirect, render, get_object_or_404
+from django.http import HttpResponseRedirect
+from cart.models import CartItem
+from decimal import Decimal
+from discount.models import Coupon,UserCoupon
 
 
 def addtocart(request):
@@ -40,14 +42,22 @@ def addtocart(request):
         return JsonResponse({'message': 'Product added to cart successfully'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-
 def shoppingcart(request):
     cart = Cart.objects.get(user=request.user)
-    print(cart)
+    cart_items = cart.items.order_by('price')  # Order the items by price
+
+    # Get the applied coupons for the user with the condition applied=True and used=False
+    applied_coupons = UserCoupon.objects.filter(user=request.user, applied=True, used=False)
+
     context = {
         'cart': cart,
+        'cart_items': cart_items,  # Pass the ordered cart items to the template
+        'Cart_item_id': cart.id,
+        'applied_coupons': applied_coupons,  # Pass the applied coupons
     }
-    return render(request, 'cart/shop_cart.html',context)
+
+    return render(request, 'cart/shop_cart.html', context)
+
 
 
 def remove_from_cart(request):
@@ -55,45 +65,80 @@ def remove_from_cart(request):
         item_id = request.POST.get('item_id')
         print(item_id)
         cart_item = CartItem.objects.get(id=item_id)
-        cart_item.delete()
-        
-        
+        cart_item.delete()  
         return redirect('shoppingcart')
-
     return render(request, 'cart/shop_cart.html')
 
 
-
-from django.http import JsonResponse
-from .models import CartItem
+def increment_quantity(request):
+    cart_item_id = request.POST.get('item_id')
+    print(request.POST.get('item_id'))
+    cart_item = CartItem.objects.get(id=cart_item_id)
+    print(cart_item)
+    print(cart_item_id)
+    print("hii")
+    stock = cart_item.product_variant_color.stock
+    if cart_item.quantity < stock:
+        cart_item.quantity += 1
+        cart_item.save()
+    else:
+        messages.error(request, 'The quantity cannot exceed the available stock.')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def decrement_quantity(request):
-    if request.method == 'POST':
-        cart_item_id = request.POST.get('cart_item_id')
+    cart_item_id = request.POST.get('item_id')
+    cart_item = CartItem.objects.get(id=cart_item_id)
+    if cart_item.quantity > 1:
+        cart_item.quantity -= 1
+        cart_item.save()
+    else:
+        messages.error(request, 'Minimum quantity required-1')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+
+
+def apply_coupon(request):
+    if request.method == 'POST':
+        coupon_code = request.POST.get('coupon')
         try:
-            cart_item = CartItem.objects.get(id=cart_item_id)
-            if cart_item.quantity > 1:
-                cart_item.quantity -= 1
-                cart_item.save()
-                return JsonResponse({'success': True})
+            coupon = Coupon.objects.get(code=coupon_code, is_active=True)
+            user = request.user
+            # Check if the coupon is already used by the user
+            user_coupon = UserCoupon.objects.filter(user=user, coupon=coupon).first()
+            if user_coupon:
+                if user_coupon.used:
+                    messages.error(request, 'This coupon has already been used.')
+                elif user_coupon.applied:
+                    messages.error(request, 'This coupon has already been applied.')
+                else:
+                    # Update the UserCoupon instance as applied and reduce the total amount
+                    cart = Cart.objects.get(user=user)
+                    user_coupon.applied = True
+                    if coupon.is_percentage:
+                        discount_amount = cart.total_price * (coupon.discount / 100)
+                    else:
+                        discount_amount = coupon.discount
+                    user_coupon.amount_discounted = discount_amount
+                    user_coupon.save()
+                    # Apply the discount to the cart
+                    
+                    cart.total_price -= discount_amount
+                    cart.save()
+                    messages.success(request, f'Coupon applied successfully. Discount: ${discount_amount}')
             else:
-                return JsonResponse({'success': False, 'message': 'Quantity cannot be less than 1'})
-        except CartItem.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Order item does not exist'})
-    else:
-        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+                # Create a new UserCoupon instance and apply the discount to the cart
+                UserCoupon.objects.create(user=user, coupon=coupon, applied=True, amount_discounted=coupon.discount)
+                cart = Cart.objects.get(user=user)
+                if coupon.is_percentage:
+                    discount_amount = cart.total_price_before_discount * (coupon.discount / 100)
+                else:
+                    discount_amount = coupon.discount
+                cart.total_price-= discount_amount
+                cart.save()
+                messages.success(request, f'Coupon applied successfully. Discount: ${discount_amount}')
+        except Coupon.DoesNotExist:
+            messages.error(request, 'Invalid coupon code.')
+    return redirect('shoppingcart')
 
-def increment_quantity(request):
-    if request.method == 'POST':
-        cart_item_id = request.POST.get('cart_item_id')
 
-        try:
-            cart_item = CartItem.objects.get(id=cart_item_id)
-            cart_item.quantity += 1
-            cart_item.save()
-            return JsonResponse({'success': True})
-        except CartItem.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Order item does not exist'})
-    else:
-        return JsonResponse({'success': False, 'message': 'Invalid request method'})

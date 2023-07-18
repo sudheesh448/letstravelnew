@@ -74,10 +74,17 @@ from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     slug = models.SlugField(unique=True)
+    referral_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
+    is_percentage = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    total_cliamed = models.DecimalField(max_digits=5, decimal_places=0)
+    total_amount_cliamed = models.DecimalField(max_digits=5, decimal_places=2)
+
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -166,9 +173,27 @@ class ProductImage(models.Model):
 
 
 
+import random
+import string
+
 class PhoneNumber(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=20)
+    referral_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    total_cliamed = models.DecimalField(max_digits=5, decimal_places=0)
+    total_amount_cliamed = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
         return self.phone_number
+
+    def save(self, *args, **kwargs):
+        if not self.referral_code:
+            self.referral_code = self.generate_referral_code()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_referral_code():
+        letters = string.ascii_uppercase + string.digits
+        code = ''.join(random.choice(letters) for _ in range(6))
+        return code

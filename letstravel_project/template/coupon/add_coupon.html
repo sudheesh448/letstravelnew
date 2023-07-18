@@ -1,0 +1,67 @@
+{% extends 'adminpages/baseadmin.html' %} 
+
+{% block title %} Add Coupon {% endblock title %}
+
+{% block content %}
+<div class="col-12 grid-margin">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">Add Coupon</h4>
+      <form action="{% url 'addcoupon' %}" method="post">
+        {% csrf_token %} 
+        {% if error_message %}
+        <p class="error">{{ error_message }}</p>
+        {% endif %}
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="id_code">Code:</label>
+              <input type="text" name="code" id="id_code" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="id_discount">Discount:</label>
+              <input type="number" name="discount" id="id_discount" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="id_expiry_date">Expiry Date:</label>
+              <input type="date" name="expiry_date" id="id_expiry_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="id_available">Available:</label>
+              <input type="number" name="available" id="id_available" class="form-control" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <div class="form-check">
+                <input type="checkbox" name="is_percentage" id="id_is_percentage" class="form-check-input">
+                <label for="id_is_percentage" class="form-check-label">Is Percentage</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="id_min_order_total">Min Order Total:</label>
+              <input type="number" name="min_order_total" id="id_min_order_total" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="id_max_discount_amount">Max Discount Amount:</label>
+              <input type="number" name="max_discount_amount" id="id_max_discount_amount" class="form-control">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">Create Coupon</button>
+            </div>
+          </div>
+        </div>
+        
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Disable past dates in the expiry_date field
+  var today = new Date().toISOString().split("T")[0];
+  document.getElementById("id_expiry_date").setAttribute("min", today);
+</script>
+      
+{% endblock content %}
