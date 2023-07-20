@@ -67,32 +67,24 @@
 
 #     def __str__(self):
 #         return f"Review for {self.product.name} by {self.customer.username}"
-
-
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
-
+from django.db import models
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     slug = models.SlugField(unique=True)
-    referral_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
-    is_percentage = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
-    total_cliamed = models.DecimalField(max_digits=5, decimal_places=0)
-    total_amount_cliamed = models.DecimalField(max_digits=5, decimal_places=2)
-
-
+    
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
-
 
 class Variant(models.Model):
     name = models.CharField(max_length=100)
@@ -101,13 +93,10 @@ class Variant(models.Model):
     def __str__(self):
         return self.name
 
-
 class ColorVariant(models.Model):
     color = models.CharField(max_length=50)
     def __str__(self):
         return self.color
-
-
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -146,8 +135,10 @@ class ProductVariantColor(models.Model):
     color_variant = models.ForeignKey(ColorVariant, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    offer_price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
     variant_deleted = models.BooleanField(default=False)
+    on_offer = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(f"{self.product_variant}-{self.color_variant}")

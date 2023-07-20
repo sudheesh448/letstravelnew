@@ -1,0 +1,52 @@
+<!-- your_template_name.html -->
+{% extends 'adminpages/baseadmin.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">Add Category Offer</h1>
+        <form method="post" class="my-form" action="create_category_offer">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="category">Category:</label>
+                <select name="category" id="category" class="form-control">
+                  {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="offer_description">Offer Description:</label>
+                <textarea name="offer_description" id="offer_description" cols="30" rows="4" class="form-control"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="discount_percentage">Discount Percentage:</label>
+                <input type="number" name="discount_percentage" id="discount_percentage" class="form-control">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="expiry">Expiry Date:</label>
+                <input type="date" name="expiry" id="expiry" class="form-control datepicker" data-date-end-date="0d">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-2">Add Offer</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  
+  
+
+{% endblock %}

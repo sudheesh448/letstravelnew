@@ -220,6 +220,7 @@ def add_new_variant(request):
 
 def cancel_orders_admin(request,order_id):
     order = get_object_or_404(Order, id=order_id)
+    items = OrderItem.objects.filter(order=order)
     if order.status != 'PAID' and order.status != 'CANCELLED':
             # Update the payment status to 'CANCELLED'
             print(order.user.email) 
@@ -233,6 +234,11 @@ def cancel_orders_admin(request,order_id):
                 [order.user.email],
                 fail_silently=False,
             )
+            for order_item in items:
+                variant = order_item.product   
+                variant.stock += order_item.quantity
+                variant.save()
+                print("hiii")
     return redirect('ordertableadmin')
 
 

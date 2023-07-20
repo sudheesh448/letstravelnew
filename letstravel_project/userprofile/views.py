@@ -1,6 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
-
+from cart.models import Cart
+from django.contrib import messages
 from userprofile.models import UserAddress
 
 
@@ -9,6 +10,10 @@ def address(request):
     context = {
         'address':address
     }  
+    cart = Cart.objects.filter(user=request.user).first()
+    if not cart or cart.total_items == 0:
+        messages.error(request, 'Your cart is empty.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return render(request, 'userprofile/address.html',context)
 
 

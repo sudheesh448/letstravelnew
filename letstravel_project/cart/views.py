@@ -13,23 +13,17 @@ from discount.models import Coupon,UserCoupon
 
 
 def addtocart(request):
-    print("hiii")
-
+    
     if request.method == 'POST' :
         productvariantcolor_id = request.POST.get('product_variant_color_id')
         print(productvariantcolor_id)
-
         # Retrieve the product based on the provided ID
         productvariantcolor = get_object_or_404(ProductVariantColor, id=productvariantcolor_id)
-
         print(productvariantcolor_id)
-
         # Assuming the user is authenticated, retrieve their cart or create a new one
         cart, created = Cart.objects.get_or_create(user=request.user)
-
         # Check if the product is already in the cart
-        cart_item = cart.items.filter(product_variant_color=productvariantcolor).first()
-        
+        cart_item = cart.items.filter(product_variant_color=productvariantcolor).first() 
         print(productvariantcolor_id)
 
         if cart_item:
@@ -55,10 +49,7 @@ def shoppingcart(request):
         'Cart_item_id': cart.id,
         'applied_coupons': applied_coupons,  # Pass the applied coupons
     }
-
     return render(request, 'cart/shop_cart.html', context)
-
-
 
 def remove_from_cart(request):
     if request.method == 'POST':
@@ -68,7 +59,6 @@ def remove_from_cart(request):
         cart_item.delete()  
         return redirect('shoppingcart')
     return render(request, 'cart/shop_cart.html')
-
 
 def increment_quantity(request):
     cart_item_id = request.POST.get('item_id')
@@ -94,9 +84,6 @@ def decrement_quantity(request):
     else:
         messages.error(request, 'Minimum quantity required-1')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-
 
 def apply_coupon(request):
     if request.method == 'POST':

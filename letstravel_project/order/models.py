@@ -1,21 +1,21 @@
 import calendar
 import datetime
-
-from django.db import models
-
-# Create your models here.
 from django.db import models
 from django.core.exceptions import ValidationError
 from admin_side.models import ProductVariantColor
 from userprofile.models import UserAddress
 from products.models import *
-from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
 from datetime import datetime
 from django.db.models import Sum
-
-# # Create your models here.
+from django.db import models
+from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+# Create your models here.
 
 
 class Order(models.Model):
@@ -44,8 +44,6 @@ class Order(models.Model):
     tracking_no = models.CharField(max_length=150, null=True)
     order_date = models.DateTimeField(default=timezone.now)
     delivery_date = models.DateTimeField(blank=True, null=True)
-    
-    
     
 
     def __str__(self):
@@ -85,11 +83,9 @@ class Order(models.Model):
         # Get the current month and year
         current_month = datetime.now().month
         current_year = datetime.now().year
-        
         # Calculate the start and end dates of the current month
         start_date = datetime(current_year, current_month, 1)
         end_date = start_date.replace(day=calendar.monthrange(current_year, current_month)[1])
-        
         # Query the Order model to get the total revenue for the current month
         total_revenue = Order.objects.filter(order_date__date__range=(start_date, end_date)).aggregate(total_revenue=Sum('total_price'))['total_revenue']
         
@@ -109,15 +105,9 @@ class Order(models.Model):
         # Calculate the start and end dates of the current day
         end_date = datetime.now()
         start_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)  # Get the start of the day
-        
         # Query the Order model to get the total revenue for the current day
-        total_revenue = Order.objects.filter(order_date__range=(start_date, end_date)).aggregate(total_revenue=Sum('total_price'))['total_revenue']
-        
+        total_revenue = Order.objects.filter(order_date__range=(start_date, end_date)).aggregate(total_revenue=Sum('total_price'))['total_revenue']        
         return total_revenue or 0
-
-
-
-
 
 
 class OrderItem(models.Model):
@@ -128,4 +118,31 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.order.id, self.order.tracking_no}"
          
-    
+
+#------------------------------wallet------------------------------------------------------------
+
+class Wallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Wallet of {self.user.username}"
+
+
+class Transaction(models.Model):
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_credit = models.BooleanField(default=False)
+    is_order_cancellation = models.BooleanField(default=False)
+    is_order_return = models.BooleanField(default=False)
+
+    def __str__(self):
+        transaction_type = 'Credit' if self.is_credit else 'Debit'
+        return f"Transaction: {self.amount} {transaction_type}"
+   
+
+@receiver(post_save, sender=User)
+def create_wallet(sender, instance, created, **kwargs):
+    if created:
+        Wallet.objects.create(user=instance, balance=0)

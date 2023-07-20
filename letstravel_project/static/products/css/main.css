@@ -282,18 +282,18 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 }
 
 .header-v2 .wrap-menu-desktop {
-  background-color: #fff;
+  background-color: #000000;
   top: 0;
 }
 
 .header-v3 .wrap-menu-desktop {
   background-color: transparent;
   top: 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .header-v4 .wrap-menu-desktop {
-  background-color: #fff;
+  background-color: #000000;
 }
 
 
@@ -650,7 +650,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   display: flex;
   align-items: center;
   height: 70px;
-  background-color: #fff;
+  background-color: #000000;
   padding: 15px;
   display: none;
 
