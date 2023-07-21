@@ -163,13 +163,19 @@ def save_product_variant_color(request):
         color_variant_id = request.POST.get('color')
         price = request.POST.get('price')
         stock = request.POST.get('stock')
+        product_id = request.session['last_product_key']
+        product_variants = ProductVariant.objects.filter(product=product_id)
+        product = get_object_or_404(Product, id=product_id)
+        category_id = product.category.id  # Get the category ID
+        category = get_object_or_404(Category, id=category_id)
         
         # Create a new ProductVariantColor instance
         product_variant_color = ProductVariantColor(
             product_variant_id=product_variant_id,
             color_variant_id=color_variant_id,
             price=price,
-            stock=stock
+            stock=stock,
+            category=category
         )
         product_variant_color.save()
 
@@ -185,6 +191,9 @@ def save_product_variant_color(request):
         
         product_id = request.session['last_product_key']
         product_variants = ProductVariant.objects.filter(product=product_id)
+        product = get_object_or_404(Product, id=product_id)
+        category_id = product.category.id  # Get the category ID
+        category = get_object_or_404(Category, id=category_id)
         colors = ColorVariant.objects.all()
         saved_color_ids = ProductVariantColor.objects.filter(product_variant__product=product_id).values_list('color_variant_id', flat=True)
         product_variant_colors = ProductVariantColor.objects.filter(product_variant__product=product_id)
@@ -194,7 +203,9 @@ def save_product_variant_color(request):
         'product_variants': product_variants,
         'colors': colors,
         'saved_color_ids': saved_color_ids,
-        'product_variant_colors':product_variant_colors
+        'product_variant_colors':product_variant_colors,
+        'category_id': category_id,  # Pass the category ID to the context
+        'category': category,
         }
 
         # Redirect to a success page or perform any desired action

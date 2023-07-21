@@ -135,10 +135,11 @@ class ProductVariantColor(models.Model):
     color_variant = models.ForeignKey(ColorVariant, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    offer_price = models.DecimalField(max_digits=10, decimal_places=2)
+    offer_price = models.DecimalField(max_digits=10, decimal_places=2,null=True)
     stock = models.PositiveIntegerField()
     variant_deleted = models.BooleanField(default=False)
     on_offer = models.BooleanField(default=False)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # New field for the category
 
     def save(self, *args, **kwargs):
         self.slug = slugify(f"{self.product_variant}-{self.color_variant}")
@@ -146,11 +147,9 @@ class ProductVariantColor(models.Model):
 
     
     def get_absolute_url(self):
-
         return reverse("productdetails", kwargs={"slug": self.slug})
     class Meta:
         unique_together = ('product_variant', 'color_variant')
-
     def __str__(self):
         return f"{self.product_variant.product.name} - {self.product_variant.variant.name} - {self.color_variant.color}"
 
@@ -172,8 +171,8 @@ class PhoneNumber(models.Model):
     phone_number = models.CharField(max_length=20)
     referral_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=False)
-    total_cliamed = models.DecimalField(max_digits=5, decimal_places=0)
-    total_amount_cliamed = models.DecimalField(max_digits=5, decimal_places=2)
+    total_cliamed = models.DecimalField(max_digits=5, decimal_places=0,blank=True, null=True)
+    total_amount_cliamed = models.DecimalField(max_digits=5, decimal_places=2,blank=True, null=True)
 
     def __str__(self):
         return self.phone_number

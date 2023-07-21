@@ -51,7 +51,17 @@ def cod(request):
     for user_coupon in user_coupons:
                 user_coupon.used = True
                 user_coupon.order = order
-                user_coupon.save()     
+                user_coupon.save()
+
+    for cart_item in items:
+                    # Check if the cart item's product variant color is on offer
+                    if cart_item.product_variant_color.on_offer:
+                        # Increment claimed by 1 and update the total amount claimed
+                        product_variant_color = cart_item.product_variant_color
+                        product_variant_color.total_claimed += 1
+                        discounted_amount = product_variant_color.price - product_variant_color.offer_price
+                        product_variant_color.total_amount_claimed += discounted_amount
+                        product_variant_color.save()       
              
     for cart_item in items:
             OrderItem.objects.create(
@@ -204,6 +214,16 @@ def online_payment_order(request,user_add_id):
                 user_coupon.used = True
                 user_coupon.order = order
                 user_coupon.save()
+        
+        for cart_item in items:
+                    # Check if the cart item's product variant color is on offer
+                    if cart_item.product_variant_color.on_offer:
+                        # Increment claimed by 1 and update the total amount claimed
+                        product_variant_color = cart_item.product_variant_color
+                        product_variant_color.total_claimed += 1
+                        discounted_amount = product_variant_color.price - product_variant_color.offer_price
+                        product_variant_color.total_amount_claimed += discounted_amount
+                        product_variant_color.save()  
 
         for cart_item in items:
             OrderItem.objects.create(
@@ -307,7 +327,17 @@ def pay_using_wallet(request):
                 for user_coupon in user_coupons:
                             user_coupon.used = True
                             user_coupon.order = order
-                            user_coupon.save()     
+                            user_coupon.save()
+
+                for cart_item in items:
+                    # Check if the cart item's product variant color is on offer
+                    if cart_item.product_variant_color.on_offer:
+                        # Increment claimed by 1 and update the total amount claimed
+                        product_variant_color = cart_item.product_variant_color
+                        product_variant_color.total_claimed += 1
+                        discounted_amount = product_variant_color.price - product_variant_color.offer_price
+                        product_variant_color.total_amount_claimed += discounted_amount
+                        product_variant_color.save()     
                         
                 for cart_item in items:
                         OrderItem.objects.create(

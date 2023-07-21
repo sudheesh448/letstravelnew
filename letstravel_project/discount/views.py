@@ -2,6 +2,14 @@ from django.shortcuts import render
 # Create your views here.
 from django.shortcuts import render, redirect
 from .models import Coupon
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import CategoryOffer
+from django.shortcuts import render
+from .models import CategoryOffer
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import CategoryOffer
 
 def add_coupon(request):
     if request.method == 'POST':
@@ -108,3 +116,51 @@ def create_category_offer(request):
         }
         return render(request, 'coupon/categoryoffer.html', context)
 
+
+
+
+
+def activate_offer(request, offer_id):
+    try:
+        offer = CategoryOffer.objects.get(pk=offer_id)
+
+        # Check if any other offer for the same category is active
+        if CategoryOffer.objects.filter(category=offer.category, is_active=True).exclude(pk=offer_id).exists():
+            active_offer = CategoryOffer.objects.filter(category=offer.category, is_active=True).first()
+            messages.error(request, f"An offer with ID {active_offer.pk} is already active for this category.")
+        else:
+            # Activate the selected offer
+            offer.is_active = True
+            offer.save()
+            messages.success(request, f"Offer with ID {offer.pk} has been activated successfully.")
+        
+        return redirect('view_category_offers')  # Replace 'offer_list' with the name of your view that displays the list of offers
+    except CategoryOffer.DoesNotExist:
+        messages.error(request, "Invalid offer ID.")
+        return redirect('view_category_offers')  # Replace 'offer_list' with the name of your view that displays the list of offers
+    
+
+
+
+def inactivate_offer(request, offer_id):
+    try:
+        offer = get_object_or_404(CategoryOffer, pk=offer_id)
+
+        # Inactivate the offer
+        offer.is_active = False
+        offer.save()
+
+        messages.success(request, f"Offer with ID {offer.pk} has been inactivated successfully.")
+    except CategoryOffer.DoesNotExist:
+        messages.error(request, "Invalid offer ID.")
+
+    return redirect('view_category_offers')  # Replace 'offer_list' with the name of your view that displays the list of offers
+
+
+
+
+def view_category_offers(request):
+    # Fetch all CategoryOffer instances, sorted by the latest first (based on expiry_date)
+    category_offers = CategoryOffer.objects.order_by('-expiry_date')
+
+    return render(request, 'coupon/categoryofferview.html', {'category_offers': category_offers})

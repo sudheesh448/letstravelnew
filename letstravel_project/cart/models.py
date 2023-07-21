@@ -48,11 +48,11 @@ def update_cart_totals(sender, instance, **kwargs):
     cart.total_price_before_discount = cart.items.aggregate(total_price=models.Sum('subtotal'))['total_price'] or 0.00
     cart.save()
 
-    user = cart.user
 
+
+    user = cart.user
         # Get all the UserCoupon instances for the user
     user_coupons = UserCoupon.objects.filter(user=user)
-
         # Iterate over the UserCoupon instances and update the applied field
     for user_coupon in user_coupons:
         if not user_coupon.used:

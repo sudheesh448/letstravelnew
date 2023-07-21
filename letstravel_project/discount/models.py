@@ -2,12 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-import datetime
 from order.models import Order
 from django.db import models
 from admin_side.models import Category
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from .function import get_product_variant_colors_by_category
 
 class Coupon(models.Model):
     code = models.CharField(max_length=25, unique=True)
@@ -54,9 +56,7 @@ class UserCoupon(models.Model):
         
         super().save(*args, **kwargs)
 
-
-
-from django.db import models
+#--------------------------------------------------------------------------------------------------------------------------------------
 
 class CategoryOffer(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -64,7 +64,7 @@ class CategoryOffer(models.Model):
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     total_claimed = models.IntegerField(default=0)
     total_amount_claimed = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    expiry = models.DateTimeField(default=datetime.date.today)
+    expiry_date = models.DateField()
     is_active = models.BooleanField(default=False)  # New Boolean field to indicate whether the offer is active
 
     def __str__(self):
@@ -79,6 +79,35 @@ class CategoryOffer(models.Model):
         else:
             self.is_active = False
 
+@receiver(post_save, sender=CategoryOffer)
+def update_product_variant_colors(sender, instance, **kwargs):
+    if instance.is_active:
+        category_id = instance.category_id
+        product_variant_colors = get_product_variant_colors_by_category(category_id)
+        # Do something with the product_variant_colors here (e.g., update prices or perform any other action)
+        for pvc in product_variant_colors:
+            # Assuming you have a field in CategoryOffer model named "discount_percentage"
+            discount_percentage = instance.discount_percentage
+            new_price = pvc.price - (pvc.price * (discount_percentage / 100))
+            pvc.offer_price = new_price
+            pvc.on_offer = True
+            pvc.save()
+
+@receiver(pre_save, sender=CategoryOffer)
+def revert_product_variant_colors(sender, instance, **kwargs):
+    try:
+        # Fetch the original instance from the database before saving the changes
+        original_instance = CategoryOffer.objects.get(pk=instance.pk)
+        # Check if the is_active field is changing from True to False
+        if original_instance.is_active and not instance.is_active:
+            category_id = instance.category_id
+            product_variant_colors = get_product_variant_colors_by_category(category_id)
+            for pvc in product_variant_colors:
+                pvc.offer_price = None
+                pvc.on_offer = False
+                pvc.save()
+    except CategoryOffer.DoesNotExist:
+        pass
 
 class UserCategoryOffer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
