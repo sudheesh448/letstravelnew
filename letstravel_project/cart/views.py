@@ -91,41 +91,46 @@ def apply_coupon(request):
         try:
             coupon = Coupon.objects.get(code=coupon_code, is_active=True)
             user = request.user
-            # Check if the coupon is already used by the user
-            user_coupon = UserCoupon.objects.filter(user=user, coupon=coupon).first()
-            if user_coupon:
-                if user_coupon.used:
-                    messages.error(request, 'This coupon has already been used.')
-                elif user_coupon.applied:
-                    messages.error(request, 'This coupon has already been applied.')
-                else:
-                    # Update the UserCoupon instance as applied and reduce the total amount
-                    cart = Cart.objects.get(user=user)
-                    user_coupon.applied = True
-                    if coupon.is_percentage:
-                        discount_amount = cart.total_price * (coupon.discount / 100)
+            cart = Cart.objects.get(user=user)
+
+            # Check if the cart meets the minimum order amount
+            if cart.total_price_before_discount < coupon.min_order_total:
+                messages.error(request, f'The minimum order amount to use this coupon is ${coupon.min_order_total}.')
+            else:
+                # Check if the coupon is already used by the user
+                user_coupon = UserCoupon.objects.filter(user=user, coupon=coupon).first()
+                if user_coupon:
+                    if user_coupon.used:
+                        messages.error(request, 'This coupon has already been used.')
+                    elif user_coupon.applied:
+                        messages.error(request, 'This coupon has already been applied.')
                     else:
-                        discount_amount = coupon.discount
-                    user_coupon.amount_discounted = discount_amount
-                    user_coupon.save()
-                    # Apply the discount to the cart
-                    
+                        # Update the UserCoupon instance as applied and calculate the discount
+                        user_coupon.applied = True
+                        if coupon.is_percentage:
+                            discount_amount = min(cart.total_price * (coupon.discount / 100), coupon.max_discount_amount)
+                        else:
+                            discount_amount = min(coupon.discount, coupon.max_discount_amount)
+                        user_coupon.amount_discounted = discount_amount
+                        user_coupon.save()
+                        # Apply the discount to the cart
+                        cart.total_price -= discount_amount
+                        cart.save()
+                        messages.success(request, f'Coupon applied successfully. Discount: ${discount_amount}')
+                else:
+                    # Create a new UserCoupon instance and apply the discount to the cart
+                    discount_amount = 0
+                    if coupon.is_percentage:
+                        discount_amount = min(cart.total_price_before_discount * (coupon.discount / 100), coupon.max_discount_amount)
+                    else:
+                        discount_amount = min(coupon.discount, coupon.max_discount_amount)
+                    UserCoupon.objects.create(user=user, coupon=coupon, applied=True, amount_discounted=discount_amount)
                     cart.total_price -= discount_amount
                     cart.save()
                     messages.success(request, f'Coupon applied successfully. Discount: ${discount_amount}')
-            else:
-                # Create a new UserCoupon instance and apply the discount to the cart
-                UserCoupon.objects.create(user=user, coupon=coupon, applied=True, amount_discounted=coupon.discount)
-                cart = Cart.objects.get(user=user)
-                if coupon.is_percentage:
-                    discount_amount = cart.total_price_before_discount * (coupon.discount / 100)
-                else:
-                    discount_amount = coupon.discount
-                cart.total_price-= discount_amount
-                cart.save()
-                messages.success(request, f'Coupon applied successfully. Discount: ${discount_amount}')
         except Coupon.DoesNotExist:
             messages.error(request, 'Invalid coupon code.')
     return redirect('shoppingcart')
+
 
 

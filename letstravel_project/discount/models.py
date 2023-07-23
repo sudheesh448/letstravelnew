@@ -115,6 +115,7 @@ class UserCategoryOffer(models.Model):
     is_claimed = models.BooleanField(default=False)
     claimed_date = models.DateTimeField(null=True, blank=True)
     discounted_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
 
     def __str__(self):
         return f"{self.user.username} - {self.category_offer.category.name} Offer: {self.category_offer.offer_description}"

@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 import hashlib
 import hmac
@@ -9,6 +10,8 @@ import razorpay
 from cart.models import Cart
 from cart.models import CartItem
 from discount.models import UserCoupon
+from discount.models import CategoryOffer
+from discount.models import UserCategoryOffer
 from order.models import OrderItem
 from order.models import Order
 from userprofile.models import UserAddress
@@ -58,10 +61,11 @@ def cod(request):
                     if cart_item.product_variant_color.on_offer:
                         # Increment claimed by 1 and update the total amount claimed
                         product_variant_color = cart_item.product_variant_color
-                        product_variant_color.total_claimed += 1
+                        category_offer = CategoryOffer.objects.get(category=product_variant_color.category, is_active=True)
+                        category_offer.total_claimed += 1
                         discounted_amount = product_variant_color.price - product_variant_color.offer_price
-                        product_variant_color.total_amount_claimed += discounted_amount
-                        product_variant_color.save()       
+                        category_offer.total_amount_claimed += discounted_amount
+                        category_offer.save()       
              
     for cart_item in items:
             OrderItem.objects.create(
@@ -115,7 +119,7 @@ def cancel_orders(request, order_id):
     
     if order.status == 'PENDING' or order.status == 'Payment Recieved':
         # Calculate the total amount to be credited to the wallet
-        if order.payment_method == 'RAZORPAY' :
+        if order.payment_method == 'RAZORPAY' or order.payment_method == 'WALLET PAY':
             total_amount_to_credit = Decimal(order.total_price)
             
             # Update the wallet balance
@@ -220,10 +224,19 @@ def online_payment_order(request,user_add_id):
                     if cart_item.product_variant_color.on_offer:
                         # Increment claimed by 1 and update the total amount claimed
                         product_variant_color = cart_item.product_variant_color
-                        product_variant_color.total_claimed += 1
+                        category_offer = CategoryOffer.objects.get(category=product_variant_color.category, is_active=True)
+                        category_offer.total_claimed += 1
                         discounted_amount = product_variant_color.price - product_variant_color.offer_price
-                        product_variant_color.total_amount_claimed += discounted_amount
-                        product_variant_color.save()  
+                        category_offer.total_amount_claimed += discounted_amount
+                        category_offer.save()
+
+                    #     user_category_offer = UserCategoryOffer.objects.create(
+                    #     user=Cart.user,
+                    #     category_offer=category_offer,
+                    #     is_claimed=True,
+                    #     claimed_date=datetime.now(),  # Update this with the actual date and time of the claim
+                    #     discounted_amount=discounted_amount
+                    # )  
 
         for cart_item in items:
             OrderItem.objects.create(
@@ -334,10 +347,11 @@ def pay_using_wallet(request):
                     if cart_item.product_variant_color.on_offer:
                         # Increment claimed by 1 and update the total amount claimed
                         product_variant_color = cart_item.product_variant_color
-                        product_variant_color.total_claimed += 1
+                        category_offer = CategoryOffer.objects.get(category=product_variant_color.category, is_active=True)
+                        category_offer.total_claimed += 1
                         discounted_amount = product_variant_color.price - product_variant_color.offer_price
-                        product_variant_color.total_amount_claimed += discounted_amount
-                        product_variant_color.save()     
+                        category_offer.total_amount_claimed += discounted_amount
+                        category_offer.save()     
                         
                 for cart_item in items:
                         OrderItem.objects.create(
@@ -365,3 +379,29 @@ def pay_using_wallet(request):
             # Insufficient balance in the wallet
             messages.error(request, 'Payment failed! Insufficient balance in your wallet. Add money to wallet. or select another payment option')
             return redirect('ordertable')  # Replace 'ordertable' with the URL name for your order table page
+
+
+def view_wallets(request):
+    wallets = Wallet.objects.all()
+    return render(request, 'adminpages/viewwallet.html', {'wallets': wallets})
+# views.py
+from django.shortcuts import render
+from .models import Order
+
+
+from django.shortcuts import render
+from .models import Order
+
+def generate_invoice(request, order_id):
+    order = Order.objects.get(pk=order_id)
+
+    # Calculate the total for each order item
+    for order_item in order.orderitem_set.all():
+        order_item.total = order_item.price * order_item.quantity
+
+    context = {
+        'order': order,
+        'order_items': order.orderitem_set.all(),  # Pass the order items with totals to the template
+    }
+
+    return render(request, 'order/invoice.html', context)

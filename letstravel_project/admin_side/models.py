@@ -67,12 +67,19 @@
 
 #     def __str__(self):
 #         return f"Review for {self.product.name} by {self.customer.username}"
+from decimal import Decimal
 from django.conf import settings
 from django.db import models
+from django.dispatch import receiver
 from django.utils.text import slugify
 from django.urls import reverse
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from psycopg import Transaction
+import random
+import string
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -116,7 +123,6 @@ class Product(models.Model):
         return self.name
 
 
-
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     variant = models.ForeignKey(Variant, on_delete=models.CASCADE)
@@ -130,7 +136,6 @@ class ProductVariant(models.Model):
 
 
 class ProductVariantColor(models.Model):
-
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     color_variant = models.ForeignKey(ColorVariant, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
@@ -163,16 +168,15 @@ class ProductImage(models.Model):
 
 
 
-import random
-import string
 
 class PhoneNumber(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
     referral_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     total_cliamed = models.DecimalField(max_digits=5, decimal_places=0,blank=True, null=True)
     total_amount_cliamed = models.DecimalField(max_digits=5, decimal_places=2,blank=True, null=True)
+    referred_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='referrals')
 
     def __str__(self):
         return self.phone_number
@@ -186,4 +190,35 @@ class PhoneNumber(models.Model):
     def generate_referral_code():
         letters = string.ascii_uppercase + string.digits
         code = ''.join(random.choice(letters) for _ in range(6))
-        return code
+        return code 
+
+@receiver(post_save, sender=User)
+def create_phone_number(sender, instance, created, **kwargs):
+    if created:
+        phone_number = PhoneNumber.objects.create(user=instance)
+
+
+@receiver(post_save, sender=PhoneNumber)
+def update_referrer_wallet(sender, instance, created, **kwargs):
+    from order.models import Wallet
+    from order.models import Transaction
+    from django.core.mail import send_mail
+    if  instance.referred_by:
+        referrer = instance.referred_by
+        email=referrer.email
+        try:
+            wallet = Wallet.objects.get(user=referrer)
+            wallet.balance += Decimal('100.00')
+            wallet.save()
+            Transaction.objects.create(wallet=wallet, amount=Decimal('100.00'), is_credit=True)
+
+            send_mail(
+                'Wallet credit',
+                f'Your wallet have a credit of Rs 100 for refering {instance.user.email}',
+                'letstravelllp@gmail.com',
+                [email],
+                fail_silently=False,
+            )
+        except Wallet.DoesNotExist:
+            # Handle the case when the referrer doesn't have a wallet yet
+            pass

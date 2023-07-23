@@ -2,12 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 from admin_side.models import Product
 from admin_side.models import ProductVariantColor
 from django.db.models import Sum
-
 from discount.models import UserCoupon
+from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, post_delete
+
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -30,14 +31,20 @@ class CartItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product_variant_color.pk} in {self.cart}"
 
+
     def save(self, *args, **kwargs):
+        if self.product_variant_color.on_offer and self.product_variant_color.offer_price is not None:
+            # Use offer_price if on_offer is True and offer_price is available
+            self.price = self.product_variant_color.offer_price
+        else:
+            # Use regular price if on_offer is False or offer_price is not available
+            self.price = self.product_variant_color.price
+        
+        # Calculate the subtotal based on the updated price and quantity
         self.subtotal = self.price * self.quantity
         super().save(*args, **kwargs)
 
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
+
 
 @receiver(post_save, sender=CartItem)
 @receiver(post_delete, sender=CartItem)

@@ -8,6 +8,8 @@ from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login,logout
 
+from admin_side.models import PhoneNumber
+
 
 def register(request):
     if request.user.is_authenticated :
@@ -18,7 +20,10 @@ def register(request):
             username = request.POST.get('username')
             password1 = request.POST.get('password1')
             password2 = request.POST.get('password2')
+            referral_code = request.POST.get('refferal_code')
+            mobilenumber = request.POST.get('mobilenumber')
 
+            
             if User.objects.filter(username=username):
                 messages.error(request, "Username already exist..!!")
                 return redirect('register')
@@ -34,6 +39,11 @@ def register(request):
             if not username.isalnum():
                 messages.error(request,"Username must be Alpha-Numeric")
                 return redirect('register')
+        
+            if not PhoneNumber.objects.filter(referral_code=referral_code).exists():
+                messages.error(request, "Invalid referral code..!!")
+                return redirect('register')
+        
             otp = get_random_string(length=6, allowed_chars='1234567890')
             expiry = datetime.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
             
@@ -43,6 +53,8 @@ def register(request):
             request.session['username'] = username  
             request.session['password'] = password1
             request.session['email'] = email
+            request.session['Referral'] = referral_code
+            request.session['mobilenumber'] = mobilenumber
             
             # Send the OTP to the user's email
             send_mail(
@@ -53,9 +65,16 @@ def register(request):
                 fail_silently=False,
             )
             messages.success(request, 'OTP send to your email ID!')
-            
             return redirect('verify_otp')
         
+        # context = {
+        #     'username': request.session.get('username', ''),
+        #     'email': request.session.get('email', ''),
+        #     'password': request.session.get('password', ''),
+        #     'referral_code': request.session.get('Referral', ''),
+        #     'mobilenumber': request.session.get('mobilenumber', ''),
+        # }
+
         return render(request, 'signup.html')
 
 
@@ -66,7 +85,7 @@ def verify_otp(request):
         expiry = request.session.get('otp_expiry')
 
         if not saved_otp or not expiry:
-            messages.error(request, 'OTP expired or invalid. Please try again.')
+            messages.error(request, 'somethging went wrong try again.')
             return redirect('register')
 
         if entered_otp == saved_otp and datetime.now() <= datetime.strptime(expiry, '%Y-%m-%d %H:%M:%S'):
@@ -74,14 +93,35 @@ def verify_otp(request):
             username = request.session.get('username')
             password = request.session.get('password')
             email = request.session.get('email')
-            User.objects.create_user(username=username, password=password,email=email)
+            user =User.objects.create_user(username=username, password=password,email=email)
+
+
+            referral_code=request.session['Referral'] 
+            mobilenumber=request.session['mobilenumber'] 
+
+            # Check if the referral code is valid and if it exists in the PhoneNumber table
+            if referral_code and PhoneNumber.objects.filter(referral_code=referral_code).exists():
+                referred_by = PhoneNumber.objects.get(referral_code=referral_code).user
+                phone_number_instance = PhoneNumber.objects.get(user=user)
+                phone_number_instance.phone_number = mobilenumber
+                phone_number_instance.referred_by = referred_by
+                phone_number_instance.save()
+
             messages.success(request, 'Registration successful!')
             del request.session['username']
             del request.session['password']
             del request.session['email']
+            del request.session['Referral']
+            del request.session['otp_expiry']
+            del request.session['otp']
             return redirect('signin')
-        messages.error(request, 'OTP expired or invalid. Please try again.')
-        return redirect('register')
+        
+        elif datetime.now() > datetime.strptime(expiry, '%Y-%m-%d %H:%M:%S'):
+            messages.error(request, 'OTP expired try again.')
+            return redirect('register')
+        elif entered_otp != saved_otp:
+            messages.error(request, 'Invalid OTP  try again.')
+            return redirect('verify_otp')
     return render(request, 'verify.html')
 
 
@@ -160,17 +200,25 @@ def otp_verification(request):
         pk = request.session.get('pk')
 
         if not saved_otp or not expiry:
-            messages.error(request, 'OTP expired or invalid. Please try again.')
+            messages.error(request, 'Something went wrong. please try agian.')
             return redirect('signin')
 
         if entered_otp == saved_otp and datetime.now() <= datetime.strptime(expiry, '%Y-%m-%d %H:%M:%S'):
             # OTP verification successful
             user = User.objects.get(pk=pk)
             login(request, user)
+            del request.session['email']
+            del request.session['pk']
+            del request.session['otp_expiry']
+            del request.session['otp']
             return redirect('home')
 
-        messages.error(request, 'OTP expired or invalid. Please try again.')
-        return redirect('otp_verification')
+        elif datetime.now() > datetime.strptime(expiry, '%Y-%m-%d %H:%M:%S'):
+            messages.error(request, 'OTP expired try again.')
+            return redirect('signin')
+        elif entered_otp != saved_otp:
+            messages.error(request, 'Invalid OTP  try again.')
+            return redirect('otp_verification')
 
     return render(request, 'verifylogin.html')
 
@@ -197,7 +245,6 @@ def resend_otp_signin(request):
 def signout(request):
     if request.user.is_authenticated:
         logout(request)
-    messages.success(request, "Logged Out Successfully")
     return redirect('home')
 
 
@@ -260,25 +307,105 @@ def mobile_otp_verification(request):
         print(pk)
         print(entered_otp)
 
-        if not saved_otp or not expiry:
-            print("sf")
+        if not saved_otp or not expiry:    
             messages.error(request, 'OTP expired or invalid. Please try again.')
             return redirect('signin')
         
-        if  saved_otp:
-            print("hii")
-
         if   saved_otp == entered_otp:
             # OTP verification successful
-            print("s")
-            messages.success(request, 'OTP verified successfully')
             user = User.objects.get(pk=pk)
             login(request, user)
+            del request.session['otp']
+            del request.session['otp_expiry']
+            del request.session['pk']
             return redirect('home')
-
         messages.error(request, 'OTP expired or invalid. Please try again.')
         return redirect('mobile_otp_verification')
-
     return render(request, 'authentication/Mobileotpverify.html')
 
+def forgotpassword(request):
+    if request.method == 'POST':
+        # Get the user's email from the form
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, 'Email not found in our records.')
+            return redirect('forgot_password')
 
+        # Generate a 6-digit OTP and save it in the user's session along with its expiry time
+        otp = get_random_string(length=6, allowed_chars='1234567890')
+        request.session['otp'] = otp
+        request.session['otp_expiry'] = (datetime.now() + timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
+        request.session['username'] = username
+        request.session['pk'] = user.pk
+
+        # Send the OTP to the user's email
+        send_mail(
+            'OTP Verification',
+            f'Your OTP for reseting password is: {otp}',
+            'letstravelllp@gmail.com',
+            [user.email],
+            fail_silently=False,
+        )
+        messages.success(request, 'OTP sent to your email ID!')
+        return redirect('enter_otp_forgot_password')  # Redirect to the page where the user enters OTP
+
+    return render(request, 'authentication/forgotpassword.html')
+
+
+from datetime import datetime
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.utils.crypto import get_random_string
+from django.utils import timezone
+
+def enter_otp_forgot_password(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        username = request.session.get('username')
+        otp_expiry_str = request.session.get('otp_expiry')
+
+        if username and otp_expiry_str:
+            otp_expiry = datetime.strptime(otp_expiry_str, '%Y-%m-%d %H:%M:%S')
+            otp_expiry = otp_expiry.replace(tzinfo=None)  # Convert to offset-naive datetime
+            current_time = timezone.now().replace(tzinfo=None)
+
+            if current_time <= otp_expiry:
+                saved_otp = request.session.get('otp')
+
+                if entered_otp == saved_otp:
+                    return redirect('reset_password')  # Redirect to the password reset form
+                else:
+                    messages.error(request, 'Invalid OTP. Please try again.')
+            else:
+                messages.error(request, 'OTP has expired. Please request a new OTP.')
+        else:
+            messages.error(request, 'OTP verification failed. Please request a new OTP.')
+
+    return render(request, 'authentication/otp_forgotpassword.html')
+
+def reset_password(request):
+    if request.method == 'POST':
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        username = request.session.get('username')
+
+        if password1 != password2:
+                messages.error(request,"Passwords didn't match !")
+                return redirect('reset_password')
+
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                user.set_password(password1)
+                user.save()
+                messages.success(request, 'Password reset successful. You can now log in with your new password.')
+                return redirect('signin')  # Redirect to the login page after successful password reset
+            except User.DoesNotExist:
+                messages.error(request, 'User not found. Please request a new OTP.')
+        else:
+            messages.error(request, 'Password reset failed. Please request a new OTP.')
+
+    return render(request, 'authentication/resetpassword.html')

@@ -121,15 +121,27 @@
               <span class="menu-title">Orders</span>
             </a>
           </li>
+
+
           <li class="nav-item menu-items">
-            <a class="nav-link" href="{%url 'customerlist'%}">
+            <a class="nav-link" data-toggle="collapse" href="#ui-basi" aria-expanded="false" aria-controls="ui-basi">
               <span class="menu-icon">
-                <i class="mdi mdi-table-large"></i>
+                <i class="mdi mdi-laptop"></i>
               </span>
               <span class="menu-title">Customers</span>
+              <i class="menu-arrow"></i>
             </a>
+            <div class="collapse" id="ui-basi">
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item"> <a class="nav-link" href="{%url 'customerlist'%}">Customers</a></li>
+              </ul>
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item"> <a class="nav-link" href="{% url 'view_wallets' %}">Wallet List</a></li>
+              </ul>
+            </div>
           </li>
-          
+
+
           <li class="nav-item menu-items">
             <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
               <span class="menu-icon">

@@ -15,8 +15,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from decimal import Decimal, ROUND_DOWN
 # Create your models here.
 
+def quantize_decimal(value):
+    return value.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
 
 class Order(models.Model):
     PAYMENT_STATUS_CHOICES = [
@@ -74,12 +77,18 @@ class Order(models.Model):
     @staticmethod
     def get_orders_count_day():
         return Order.objects.filter(order_date__gte=datetime.now()-timedelta(hours=24)).count()
+    
+   
+
+    
     @staticmethod
     def get_total_revenue():
         total_revenue = Order.objects.aggregate(total_revenue=Sum('total_price'))['total_revenue']
-        return total_revenue or 0
+        total_revenue= Decimal(str(total_revenue))
+        return quantize_decimal(total_revenue) 
     @staticmethod
     def get_total_revenue_month():
+        from django.db.models import DecimalField
         # Get the current month and year
         current_month = datetime.now().month
         current_year = datetime.now().year
@@ -88,8 +97,10 @@ class Order(models.Model):
         end_date = start_date.replace(day=calendar.monthrange(current_year, current_month)[1])
         # Query the Order model to get the total revenue for the current month
         total_revenue = Order.objects.filter(order_date__date__range=(start_date, end_date)).aggregate(total_revenue=Sum('total_price'))['total_revenue']
-        
-        return total_revenue or 0
+        total_revenue= Decimal(str(total_revenue))
+        return quantize_decimal(total_revenue) 
+    
+    
     @staticmethod
     def get_total_revenue_week():
         # Calculate the start and end dates of the current week
@@ -98,8 +109,8 @@ class Order(models.Model):
         
         # Query the Order model to get the total revenue for the current week
         total_revenue = Order.objects.filter(order_date__date__range=(start_date, end_date)).aggregate(total_revenue=Sum('total_price'))['total_revenue']
-        
-        return total_revenue or 0
+        total_revenue= Decimal(str(total_revenue))
+        return quantize_decimal(total_revenue)
     @staticmethod
     def get_total_revenue_day():
         # Calculate the start and end dates of the current day

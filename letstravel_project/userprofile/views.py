@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from cart.models import Cart
 from django.contrib import messages
+from admin_side.models import PhoneNumber
 from userprofile.models import UserAddress
 
 
@@ -102,8 +103,10 @@ def profile_view(request):
         user.save() 
         return redirect('profile_view')  # Redirect to the profile view or any other desired page after updating
      address = UserAddress.objects.filter(user = request.user)
+     referral_code = PhoneNumber.objects.get(user=request.user).referral_code
      context = {
-        'address':address
+        'address':address,
+        'referral_code': referral_code,
      }
      return render(request,'profile/profile.html',context)
 
@@ -112,7 +115,8 @@ def user_address(request):
     user_add = request.user
     address = UserAddress.objects.filter(user = user_add)
     context = {
-        'address':address
+        'address':address,
+        
     }
     return render(request,'userprofile/address.html',context) 
 def delete_address(request):

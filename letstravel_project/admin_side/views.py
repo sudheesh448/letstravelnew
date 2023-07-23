@@ -391,3 +391,116 @@ def revenue_chart_line(request):
         }]
     }
     return JsonResponse(data)
+
+
+from django.core.paginator import Paginator
+
+from datetime import datetime
+
+def sales_report_view(request):
+    # Get the required data for the sales report
+    total_orders = Order.get_total_orders()
+    total_revenue = Order.get_total_revenue()
+    total_revenue_month = Order.get_total_revenue_month()
+    total_revenue_week = Order.get_total_revenue_week()
+    total_revenue_day = Order.get_total_revenue_day()
+    
+    # Get the total number of orders for the month, week, and day
+    total_orders_month = Order.get_orders_count_month()
+    total_orders_week = Order.get_orders_count_week()
+    total_orders_day = Order.get_orders_count_day()
+
+    # Get the report generated date and time
+    report_generated_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Pass the data to the template context
+    context = {
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'total_revenue_month': total_revenue_month,
+        'total_revenue_week': total_revenue_week,
+        'total_revenue_day': total_revenue_day,
+        'total_orders_month': total_orders_month,
+        'total_orders_week': total_orders_week,
+        'total_orders_day': total_orders_day,
+        'report_generated_date': report_generated_date,
+    }
+
+    # Render the sales report template with the data
+    return render(request, 'adminpages/salesreport.html', context)
+
+
+from wkhtmltopdf.views import PDFTemplateView
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+
+
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.template.backends.utils import csrf_input_lazy, csrf_token_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import View
+from django.middleware.csrf import get_token
+from django.middleware.clickjacking import XFrameOptionsMiddleware
+from django.middleware.csrf import CsrfViewMiddleware
+
+
+class PDFView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        get_token(request)
+        #request.META['HTTP_X_CSRFTOKEN'] = _get_new_csrf_token()        
+        return super(PDFView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # Get the required data for the sales report
+        total_orders = Order.get_total_orders()
+        total_revenue = Order.get_total_revenue()
+        total_revenue_month = Order.get_total_revenue_month()
+        total_revenue_week = Order.get_total_revenue_week()
+        total_revenue_day = Order.get_total_revenue_day()
+        total_orders_month = Order.get_orders_count_month()
+        total_orders_week = Order.get_orders_count_week()
+        total_orders_day = Order.get_orders_count_day()
+
+        # Get the report generated date and time
+        report_generated_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Pass the data to the template context
+        context = {
+            'total_orders': total_orders,
+            'total_revenue': total_revenue,
+            'total_revenue_month': total_revenue_month,
+            'total_revenue_week': total_revenue_week,
+            'total_revenue_day': total_revenue_day,
+            'total_orders_month': total_orders_month,
+            'total_orders_week': total_orders_week,
+            'total_orders_day': total_orders_day,
+            'report_generated_date': report_generated_date,
+        }
+
+        # Load the Django template
+        template = 'adminpages/salesreport.html'
+        template = get_template(template)
+
+        # Render the template with the context
+        rendered_template = template.render(context)
+
+
+        # Create a PDF response
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="sales_report.pdf"'
+
+        # Render the PDF using PDFRenderer
+        from django.template import engines
+        pdf_renderer = engines['django'].engine.template_renderer_class()
+        pdf_content = pdf_renderer.render(rendered_template, context=context, request=request)
+        response.write(pdf_content)
+
+        return response
+
+

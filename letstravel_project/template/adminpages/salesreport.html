@@ -1,0 +1,97 @@
+{% extends 'adminpages/baseadmin.html' %} 
+{%load static%}
+{% block title %}Sales Report{% endblock title %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="letter-pad">
+        <div class="row">
+          <div class="col-md-4 text-center">
+            <img src="{%static 'images/logo.png'%}" alt="Logo" class="logo">
+          </div>
+          <div class="col-md-8">
+            <h1 class="mt-4 mb-4 header-text">Sales Report</h1>
+            <hr class="header-line">
+          </div>
+        </div>
+        <div class="letter-body">
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <td>Total Orders:</td>
+                <td>{{ total_orders }}</td>
+              </tr>
+              <tr>
+                <td>Total Revenue:</td>
+                <td>${{ total_revenue }}</td>
+              </tr>
+              <tr>
+                <td>Total Revenue (This Month):</td>
+                <td>${{ total_revenue_month }}</td>
+              </tr>
+              <tr>
+                <td>Total Revenue (This Week):</td>
+                <td>${{ total_revenue_week }}</td>
+              </tr>
+              <tr>
+                <td>Total Revenue (Today):</td>
+                <td>${{ total_revenue_day }}</td>
+              </tr>
+              <tr>
+                <td>Total Orders (This Month):</td>
+                <td>{{ total_orders_month }}</td>
+              </tr>
+              <tr>
+                <td>Total Orders (This Week):</td>
+                <td>{{ total_orders_week }}</td>
+              </tr>
+              <tr>
+                <td>Total Orders (Today):</td>
+                <td>{{ total_orders_day }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="report-generated-date mt-4">
+          <p>Report generated on: {{ report_generated_date }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<a href="{% url 'sales_report_pdf' %}" class="btn btn-primary">Download PDF</a>
+
+
+<style>
+  .letter-pad {
+    border: 2px solid #000;
+    padding: 20px;
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+  }
+  
+  .logo {
+    width: 100px; /* Adjust the size of the logo as needed */
+    height: 100px;
+    margin-bottom: 20px;
+  }
+  
+  .header-text {
+    color: #123456; /* Replace with the color code from your logo */
+  }
+  
+  .header-line {
+    border-top: 3px solid #123456; /* Replace with the color code from your logo */
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .report-generated-date {
+    text-align: right;
+    font-size: 12px;
+    color: #333; /* Adjust the color as needed */
+  }
+</style>
+{% endblock content %}
