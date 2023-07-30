@@ -25,8 +25,8 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label" for="id_category">Category</label>
               <div class="col-sm-9">
-                <select class="form-control text-white" name="category" id="id_category">
-                  <option value="">Select a category</option>
+                <select class="form-control text-white" name="category" id="id_category" required>
+                  <option value="" selected disabled>Select a category</option>
                   {% for category in categories %}
                     <option value="{{ category.id }}">{{ category.name }}</option>
                   {% endfor %}
@@ -78,7 +78,7 @@
           </div>
         </div>
         <div class="pt-1  mb-4">
-          <button class="btn btn-info btn-lg btn-block" type="submit">Add Product and Upload Images</button>
+          <button class="btn btn-info btn-lg btn-block" type="submit">Select color and Upload Images</button>
         </div>
       </form>
       <script>

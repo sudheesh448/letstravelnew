@@ -29,7 +29,7 @@
                   <td>{{ product_variant.variant.name }}</td>
                   <td>
                     <select class="form-select color-select" name="color" >
-                      <option value="">Select Color</option>
+                      <option value="" selected disabled>Select Color</option>
                       {% for color_variant in colors %}
                         <option value="{{ color_variant.id }}">{{ color_variant.color }}</option>
                       {% endfor %}

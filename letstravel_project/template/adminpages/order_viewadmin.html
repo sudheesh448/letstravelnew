@@ -1,13 +1,12 @@
 
-{% extends 'products/productbase.html' %}
-
-{% block title %}
-order view
-{% endblock  %}
+{% extends 'adminpages/baseadmin.html' %} 
+{% load static %}
+{% block title %} View Product {% endblock title %}
 
 {% block content %}
-<br><br><br>
+
 <div class="container">
+  
     <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
         <a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
             Home
@@ -22,36 +21,78 @@ order view
     
 
 <!-- Shoping Cart -->
+<div class="row">
+  <div class="col card-body ">  
+        <h3 > Order items</h3>
+      <hr color="dark">
+  </div>
+</div>
 
-
-    <div class="container">
     
-                    
-                          <table class="table">
-                            <thead class="thead-light">
-                              <tr>
-                                <th scope="col">Product</th>
-                                <th scope="col">Price</th>
-                                <th scope="col">Quantity</th>
-                              
-                              </tr>
-                            </thead>
-                            <tbody>
-                                {% for orders in view_order %}
-                              <tr>
-                                <th scope="row">{{orders.product}}</th>
-                                <td>{{orders.price}}</td>
-                                <td>{{orders.quantity}}</td>
-                                
-                               
-                              </tr>
-                          {% endfor %}
-                            </tbody>
-                          </table>                    
-        
+<section style="background-color: #110f0f;">
+    <div class="container py-0">
+      
+  
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body text-center">
+              <h3>Order details</h3>
+              <hr color="red">
+              <p>Order id : {{order.id}}<p>
+                <p>Ordered by : {{order.user.username}}</p>
+              <p>Date : {{order.order_date}}</p>
+              <p>Total : {{order.total_price}}</p>
+              <p>Status : {{order.status}}</p>
+              <p>Payment method : {{order.payment_method}}</p>
+              <hr color="red">
+              <h3 > Address </h3>
+              <hr color="red">
+              <h5> {{address.first_name}} {{address.last_name}}<h5>
+                <p> {{address.address_line_1}}</p>
+                <p> {{address.address_line_2}}</p>
+                <p> {{address.city}}</p>
+                <p> {{address.state}}</p>
+                <p> {{address.postal_code}}</p>
+            </div>
+          </div>
+          <div class="card mb-4 mb-lg-0">
+            <div class="card-body p-0">
+              
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card ">
+          
+            <div class="">
+              <table class="table table-active">
+                <thead class="">
+                  <tr>
+                    <th class=" bg-info text-light " scope="col">Product</th>
+                    <th class=" bg-info text-light " scope="col">Price</th>
+                    <th class=" bg-info text-light " scope="col">Quantity</th> 
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for orders in view_order %}
+                  <tr>
+                    <th class="  text-light " scope="row">{{orders.product}}</th>
+                    <td class="  text-light ">{{orders.price}}</td>
+                    <td class="  text-light ">{{orders.quantity}}</td>                        
+                  </tr>
+              {% endfor %}
+                </tbody>
+              </table>                         
+</div>
 
-            
+
+
+          </div>
+          
+        </div>
+      </div>
     </div>
+  </section>
+  {% endblock content %}
 
-
-{% endblock  %}

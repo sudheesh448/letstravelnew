@@ -487,23 +487,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 
 
 /*---------------------------------------------*/
-.icon-header-noti::after {
-  content: attr(data-notify);
-  font-family: Poppins-Regular;
-  font-size: 12px;
-  color: #fff;
-  line-height: 15px;
-  text-align: center;
 
-  display: block;
-  position: absolute;
-  top: -7px;
-  right: 0;
-  min-width: 15px;
-  height: 15px;
-  padding: 0 3px;
-  background-color: #717fe0;
-}
 
 /*---------------------------------------------*/
 .wrap-header-mobile .wrap-icon-header {
@@ -700,6 +684,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   -ms-transform: scale(0.7);
   -o-transform: scale(0.7);
   transform: scale(0.7);
+  
 }
 
 .hamburger:hover {
@@ -832,7 +817,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   height: 100vh;
   top: 0;
   right: -400px;
-  background-color: #fff;
+  background-color: #000000;
   
   -webkit-transition: all 0.4s;
   -o-transition: all 0.4s;

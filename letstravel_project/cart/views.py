@@ -13,7 +13,6 @@ from discount.models import Coupon,UserCoupon
 
 
 def addtocart(request):
-    
     if request.method == 'POST' :
         productvariantcolor_id = request.POST.get('product_variant_color_id')
         print(productvariantcolor_id)
@@ -37,8 +36,13 @@ def addtocart(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def shoppingcart(request):
-    cart = Cart.objects.get(user=request.user)
-    cart_items = cart.items.order_by('price')  # Order the items by price
+    if  request.user.is_authenticated:
+        cart = Cart.objects.get(user=request.user)
+        cart_items = cart.items.order_by('price')  # Order the items by price
+    else:
+        messages.warning(request, 'Sign in required to continue.')
+        return redirect('login_url')
+    
 
     # Get the applied coupons for the user with the condition applied=True and used=False
     applied_coupons = UserCoupon.objects.filter(user=request.user, applied=True, used=False)

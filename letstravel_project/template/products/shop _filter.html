@@ -1,0 +1,520 @@
+<!-- Product -->
+{% extends 'products/productbase.html' %} 
+{%load static%}
+{% block title %} Shop {% endblock title %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'products/css/products.css' %}">
+<section class="bg0 p-t-23 p-b-130">
+    <div class="container">
+        <div class="p-b-10">
+            <h3 class="ltext-103 cl5">
+                Product Overview
+            </h3>
+        </div>
+
+        <div class="flex-w flex-sb-m p-b-52">
+            <div class="flex-w flex-l-m filter-tope-group m-tb-10">
+                <a href="{% url 'shop' %}"><button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" >
+                    All Products
+                </button></a>
+
+                <a href="{% url 'shop' category_id=5 %}"><button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" >
+                    Backpacks
+                </button></a>
+
+                <a href="{% url 'shop' category_id=4 %}"><button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" >
+                    Tents
+                </button></a>
+
+                <a href="{% url 'shop' category_id=23 %}"><button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" >
+                    Electronics
+                </button></a>
+
+                <a href="{% url 'shop' category_id=6 %}"><button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" >
+                    Bags
+                </button></a>
+
+                <a href="{% url 'shop' category_id=26 %}"></a><button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" >
+                    Health and Safety
+                </button></a>
+            </div>
+
+            <div class="flex-w flex-c-m m-tb-10">
+                <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
+                    <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+                    <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                     Filter
+                </div>
+
+                <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+                    <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+                    <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                    Search
+                </div>
+            </div>
+            
+            <!-- Search product -->
+            <div class="dis-none panel-search w-full p-t-10 p-b-15">
+                <form id="search-form" method="GET" action="{% url 'shop' %}">
+                    <div class="bor8 dis-flex p-l-15">
+                        <button type="submit" class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+                            <i class="zmdi zmdi-search"></i>
+                        </button>
+            
+                        <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="query" id="search-input" placeholder="Search">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Filter -->
+            <div class="dis-none panel-filter w-full p-t-10">
+                <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+                    <div class="filter-col1 p-r-15 p-b-27">
+                        <form id="filter-form" method="get" action="{% url 'shop_filter' %}">
+                        <div class="mtext-102 cl2 p-b-15">
+                            Sort By
+                        </div>
+
+                        <ul>
+                            <li class="p-b-6">
+                                <div class="row">
+                                    <input type="checkbox" name="sort_new" value="popularity" id="sort-popularity" {% if sort_new == 'popularity' %}checked{% endif %} class="sort-checkbox">
+                                    <label for="sort-popularity" class=" stext-106 trans-04 mx-1 mt-2">Popularity</label>
+                                </div>
+                            </li>
+                            
+                            <li class="p-b-6">
+                                <div class="row">
+                                    <input type="checkbox" name="sort_new" value="newness" id="sort-newness" {% if sort_new == 'newness' %}checked{% endif %} class="sort-checkbox">
+                                    <label for="sort-newness" class=" stext-106 trans-04 mx-1 mt-2">Newness</label>
+                                </div>
+                            </li>
+                            
+                            <li class="p-b-6">
+                                <div class="row">
+                                    <input type="radio" name="sort_price" value="low_to_high" id="sort-low-to-high" {% if sort_price == 'low_to_high' %}checked{% endif %} class="sort-checkbox">
+                                    <label for="sort-low-to-high" class=" stext-106 trans-04 mx-1 mt-2">Price: Low to High</label>
+                                </div>
+                            </li>
+                            
+                            <li class="p-b-6">
+                                <div class="row">
+                                    <input type="radio" name="sort_price" value="high_to_low" id="sort-high-to-low" {% if sort_price == 'high_to_low' %}checked{% endif %} class="sort-checkbox">
+                                    <label for="sort-high-to-low" class=" stext-106 trans-04 mx-1 mt-2">Price: High to Low</label>
+                                </div>
+                            </li>
+                            <li class="p-b-6">
+                                <div class="row">
+                                    <input type="checkbox" name="out_of_stock" value="out_of_stock" id="out_of_stock" {% if out_of_stock == 'out_of_stock' %}checked{% endif %} class="out_of_stock">
+                                    <label for="out_of_stock" class=" stext-106 trans-04 mx-1 mt-2">Include out of stock </label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="filter-col2 p-r-15 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            Price
+                        </div>
+
+                        <ul>
+                            
+                            <li class="p-b-6">
+                            <div class=" row align-items-center" >
+                                <input type="checkbox" name="price" id="price-all" value="all" {% if not price_filters %}checked{% endif %} class="all-checkbox">
+                                <label for="price-all" class=" stext-106 mx-2 mt-2">All</label>
+                            </div>
+                            </li>
+
+                            
+                            <li class="p-b-6 ">
+                            <div class=" row " >
+                                <input type="checkbox" name="price" id="price-0-1000" value="0-1000" {% if '0-1000' in price_filters %}checked{% endif %} class="price-checkbox">
+                                <label for="price-all" class=" stext-106 mx-2 mt-2">₹0.00 - ₹1000.00</label>
+                            </div>
+                            </li>
+
+                            <li class="p-b-6 ">
+                                <div class=" row " >
+                                    <input type="checkbox" name="price" id="price-1000-2500" value="1000-2500" {% if '1000-2500' in price_filters %}checked{% endif %} class="price-checkbox">
+                                    <label for="price-all" class=" stext-106 mx-2 mt-2">₹1000.00 - ₹2500.00</label>
+                                </div>
+                            </li>
+                            <li class="p-b-6 ">
+                                <div class=" row " >
+                                    <input type="checkbox" name="price" id="price-2500-5000" value="2500-5000" {% if '2500-5000' in price_filters %}checked{% endif %} class="price-checkbox">
+                                    <label for="price-all" class=" stext-106 mx-2 mt-2">₹2500.00 - ₹5000.00</label>
+                                </div>
+                            </li>
+                            <li class="p-b-6 ">
+                                <div class=" row " >
+                                    <input type="checkbox" name="price" id="price-5000-10000" value="5000-10000" {% if '5000-10000' in price_filters %}checked{% endif %} class="price-checkbox">
+                                    <label for="price-all" class=" stext-106 mx-2 mt-2">5000.00 - ₹10000.00</label>
+                                </div>
+                            </li>
+                            <li class="p-b-6 ">
+                                <div class=" row " >
+                                    <input type="checkbox" name="price" id="price-10000-300000" value="10000 - 300000" {% if '10000-300000' in price_filters %}checked{% endif %} class="price-checkbox">
+                                    <label for="price-all" class=" stext-106 mx-2 mt-2">Above ₹10000.00</label>
+                                </div>
+                            </li>
+                            
+                            
+                        </ul>
+                    </div>
+
+                    
+                    <div class="filter-col3 p-r-15 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            Color
+                        </div>
+                    
+                        <ul>
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="all" id="color-all" {% if not color_filters %}checked{% endif %} class="all-checkbox">
+                                <label for="color-all" class="stext-106 mx-2 mt-2">All</label>
+                                </div>
+                            </li>
+                    
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="Black" id="color-black" {% if 'Black' in color_filters %}checked{% endif %} class="color-checkbox ">
+                                <span class="fs-15 lh-12 m-r-6 mx-2 mt-2" style="color: #222;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>
+                                <label for="color-black" class="filter-link stext-106 trans-04 mt-2">Black</label>
+                            </div>
+                            </li>
+
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="Blue" id="color-black" {% if 'Blue' in color_filters %}checked{% endif %} class="color-checkbox ">
+                                <span class="fs-15 lh-12 m-r-6 mx-2 mt-2" style="color: #4272d7;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>
+                                <label for="color-black" class="filter-link stext-106 trans-04 mt-2">Blue</label>
+                            </div>
+                            </li>
+
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="Grey" id="color-black" {% if 'Grey' in color_filters %}checked{% endif %} class="color-checkbox ">
+                                <span class="fs-15 lh-12 m-r-6 mx-2 mt-2" style="color: #b3b3b3">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>
+                                <label for="color-black" class="filter-link stext-106 trans-04 mt-2">Grey</label>
+                            </div>
+                            </li>
+
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="Green" id="color-black" {% if 'Green' in color_filters %}checked{% endif %} class="color-checkbox ">
+                                <span class="fs-15 lh-12 m-r-6 mx-2 mt-2" style="color: #00ad5f;;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>
+                                <label for="color-black" class="filter-link stext-106 trans-04 mt-2">Green</label>
+                            </div>
+                            </li>
+
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="Red" id="color-black" {% if 'Red' in color_filters %}checked{% endif %} class="color-checkbox ">
+                                <span class="fs-15 lh-12 m-r-6 mx-2 mt-2" style="color: #fa4251;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>
+                                <label for="color-black" class="filter-link stext-106 trans-04 mt-2">Red</label>
+                            </div>
+                            </li>
+                            <li class="p-b-6">
+                                <div class="row">
+                                <input type="checkbox" name="color" value="White" id="color-black" {% if 'White' in color_filters %}checked{% endif %} class="color-checkbox ">
+                                <span class="fs-15 lh-12 m-r-6 mx-2 mt-2" style="color: #aaa;">
+                                    <i class="zmdi zmdi-circle-o"></i>
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>
+                                <label for="color-black" class="filter-link stext-106 trans-04 mt-2">White</label>
+                            </div>
+                        </li>
+                        </ul>
+                    </div>
+                    
+
+                    <div class="filter-col4 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            
+                        </div>
+                        <div class="filter-col5 p-b-27">
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                        <div class="filter-col5 p-b-27 ">
+                            <a href="{% url 'shop_filter' %}" class="btn btn-secondary">Clear All</a>
+                        </div>
+                    </form>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+
+        <div class="row isotope-grid">
+            {% if products %}
+                {% for product_color in products %}
+                {% with product_image=product_color.productimage_set.first %}
+                                    {% if product_image %}
+                    <div class="col-6 col-md-4 col-lg-2 p-b-35 isotope-item ">
+                        <!-- Block2 -->
+                        <div class="block2">
+                            <div class="block2-pic hov-img0">
+                                
+                                <img src="{{ product_image.image.url }}" alt="Product Image" class="blockimage">
+                                    
+                                 {% if product_color.stock > 0 %}   
+                                <a href="{{ product_color.get_absolute_url }}" class="block2-btn flex-c-m cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                                    Quick View
+                                </a>
+                                {% else %}
+                                <a href="{{ product_color.get_absolute_url}}" class="block2-btn flex-c-m  cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 bg-danger ">
+                                    Out Of Stock
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="block2-txt flex-w flex-t p-t-14 bg-white-background-with-shadow ">
+                                <div class="block2-txt-child1 flex-col-l">
+                                    <a href="{{ product_color.get_absolute_url }}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6 text-dark font-weight-bold">
+                                        {{ product_color.product_variant.product.name }}
+                                    </a>
+
+                                    <div class="row mx-0">
+                                        
+                                    <span class=" cl3 small text-dark font-weight-bold">
+                                        {{ product_color.product_variant.variant.name }}
+                                    </span>
+                                    <span class=" cl3 mx-3 small text-dark font-weight-bold">
+                                        {{ product_color.color_variant.color }}
+                                    </span>
+                                </div>
+                                    <span class="stext-80">
+                                        {% if product_color.on_offer and product_color.offer_price %}
+                                        <div class="row mx-0">
+                                            <p><span style="text-decoration: line-through;" class="small">₹{{ product_color.price }}</span></p>
+                                            <p class="small mt-1 ml-3 text-danger font-weight-bold">₹{{ product_color.offer_price }}</p>
+                                        </div>
+                                        {% else %}
+                                            <p class="small mt-1 text-dark font-weight-bold">₹{{ product_color.price }}</p>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div  class="block2-txt-child2 flex-r p-t-3 mr-0">
+                                    {% if product_color.id in wishlist_items_product_variant_color_ids %}
+                                      <a href="#" class="remove-from-wishlist dis-block pos-relative js-removedwish-b2" data-product-id="{{ product_color.id }}">
+                                        <img id="heart-icon-{{ product_color.id }}" class="icon-heart2 dis-block trans-04" src="{% static 'images/icon/icon-heart-02.png' %}" alt="ICON" >
+                                      </a>
+                                    {% else %}
+                                      <a href="#"  class="add-to-wishlist dis-block pos-relative js-addwish-b2" data-product-id="{{ product_color.id }}">
+                                        <img id="heart-icon-{{ product_color.id }}" class="icon-heart1 dis-block trans-04" src="{% static 'images/icon/icon-heart-01.png' %}" alt="ICON">
+                                      </a>
+                                    {% endif %}
+                                  </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                  {% endwith %}
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <h3>No products available.</h3>
+                </div>
+            {% endif %}
+        </div>
+        
+
+        <!-- Pagination -->
+        <!-- Pagination -->
+        <!-- Assuming you have already defined the 'page' variable in your context -->
+
+<!-- Pagination links for the previous pages -->
+<div class="flex-w flex-c-m p-t-45">
+{% if products.has_previous %}
+<li class="page-item">
+    <a class="page-link" href="?{% if sort %}sort={{ sort }}&{% endif %}{% if sort_new %}{% for sort_option in sort_new %}sort_new={{ sort_option }}&{% endfor %}{% endif %}{% if sort_price %}sort_price={{ sort_price }}&{% endif %}{% if color_filters %}{% for color_option in color_filters %}color={{ color_option }}&{% endfor %}{% endif %}{% if price_filters %}{% for price_option in price_filters %}price={{ price_option }}&{% endfor %}{% endif %}page={{ products.previous_page_number }}">Previous</a>
+</li>
+{% endif %}
+
+<!-- Pagination links for the current page and the next pages -->
+{% for i in products.paginator.page_range %}
+{% if products.number == i %}
+    <li class="page-item active">
+        <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+    </li>
+{% else %}
+    <li class="page-item">
+        <a class="page-link" href="?{% if sort %}sort={{ sort }}&{% endif %}{% if sort_new %}{% for sort_option in sort_new %}sort_new={{ sort_option }}&{% endfor %}{% endif %}{% if sort_price %}sort_price={{ sort_price }}&{% endif %}{% if color_filters %}{% for color_option in color_filters %}color={{ color_option }}&{% endfor %}{% endif %}{% if price_filters %}{% for price_option in price_filters %}price={{ price_option }}&{% endfor %}{% endif %}page={{ i }}">{{ i }}</a>
+    </li>
+{% endif %}
+{% endfor %}
+
+<!-- Pagination links for the next pages -->
+{% if products.has_next %}
+<li class="page-item">
+    <a class="page-link" href="?{% if sort %}sort={{ sort }}&{% endif %}{% if sort_new %}{% for sort_option in sort_new %}sort_new={{ sort_option }}&{% endfor %}{% endif %}{% if sort_price %}sort_price={{ sort_price }}&{% endif %}{% if color_filters %}{% for color_option in color_filters %}color={{ color_option }}&{% endfor %}{% endif %}{% if price_filters %}{% for price_option in price_filters %}price={{ price_option }}&{% endfor %}{% endif %}page={{ products.next_page_number }}">Next</a>
+</li>
+{% endif %}
+
+
+</div>
+</section>
+
+<script>
+    // Get references to the "All" checkbox and all price range checkboxes
+    const allCheckbox = document.getElementById('price-all');
+    const priceCheckboxes = document.querySelectorAll('input.price-checkbox');
+
+    // Add event listeners to the price range checkboxes
+    priceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            // If any price range checkbox is selected, uncheck the "All" checkbox
+            if (checkbox.checked) {
+                allCheckbox.checked = false;
+            }
+            // Disable the "All" checkbox if any price range checkbox is selected
+            allCheckbox.disabled = priceCheckboxes.some(checkbox => checkbox.checked);
+        });
+    });
+
+    // Add an event listener to the "All" checkbox
+    allCheckbox.addEventListener('change', () => {
+        // If the "All" checkbox is checked, uncheck all other price range checkboxes
+        if (allCheckbox.checked) {
+            priceCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+        // Disable all price range checkboxes if the "All" checkbox is checked
+        priceCheckboxes.forEach(checkbox => {
+            checkbox.disabled = allCheckbox.checked;
+        });
+    });
+</script>
+
+
+
+
+<!-- Add the following JavaScript to your template or a separate script file -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const allCheckbox = document.getElementById('color-all');
+        const colorCheckboxes = document.querySelectorAll('.color-checkbox');
+
+        // Function to disable all color checkboxes
+        function disableColorCheckboxes() {
+            colorCheckboxes.forEach(checkbox => {
+                checkbox.disabled = true;
+                checkbox.checked = false;
+            });
+        }
+
+        // Function to enable all color checkboxes
+        function enableColorCheckboxes() {
+            colorCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+            });
+        }
+
+        // Function to handle checkbox change event
+        function handleCheckboxChange(event) {
+            if (event.target === allCheckbox) {
+                if (allCheckbox.checked) {
+                    // If "All" checkbox is checked, disable and uncheck other color checkboxes
+                    disableColorCheckboxes();
+                } else {
+                    // If "All" checkbox is unchecked, enable other color checkboxes
+                    enableColorCheckboxes();
+                }
+            } else {
+                if (event.target.checked) {
+                    // If any other color checkbox is selected, uncheck the "All" checkbox
+                    allCheckbox.checked = false;
+                }
+            }
+        }
+
+        // Add event listeners to checkboxes
+        allCheckbox.addEventListener('change', handleCheckboxChange);
+        colorCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', handleCheckboxChange);
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+      $('.add-to-wishlist').click(function (event) {
+        event.preventDefault();
+        const productId = $(this).data('product-id');
+  
+        $.ajax({
+          url: '/add_to_wishlist/', // Replace with your Django URL to handle adding to wishlist
+          type: 'POST',
+          data: {
+            product_id: productId,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success: function (data) {
+            $('#heart-icon-' + productId).removeClass('icon-heart1').addClass('icon-heart2');
+            $(this).removeClass('add-to-wishlist').addClass('remove-from-wishlist');
+            console.log("success add")
+            
+          },
+          error: function (xhr, status, error) {
+            console.log("success error")
+          },
+        });
+      });
+  
+      $('.remove-from-wishlist').click(function (event) {
+        event.preventDefault();
+        const productId = $(this).data('product-id');
+  
+        $.ajax({
+          url: '/remove_from_wishlist/', // Replace with your Django URL to handle removing from wishlist
+          type: 'POST',
+          data: {
+            product_id: productId,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success: function (data) {
+            $('#heart-icon-' + productId).removeClass('icon-heart2').addClass('icon-heart1');
+            $(this).removeClass('remove-from-wishlist').addClass('add-to-wishlist');
+            console.log("remove success")
+            
+          },
+          error: function (xhr, status, error) {
+            console.log(" remove error")
+          },
+        });
+      });
+
+      function refreshWishlistIcons() {
+      $('#wishlist-icons-container').load(window.location.href + ' #wishlist-icons-container');
+        }
+    });
+  </script>
+
+  <script>
+    $('.js-removewish-b2').on('click', function(e){
+        e.preventDefault();
+    });
+    $('.js-removedwish-b2').each(function(){
+        var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
+        $(this).on('click', function(){
+            swal(nameProduct, "is removed from wishlist !", "");
+
+            $(this).addClass('js-addedwish-b2');
+            $(this).off('click');
+        });
+    });
+  </script>
+{% endblock content %}

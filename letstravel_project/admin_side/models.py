@@ -139,12 +139,15 @@ class ProductVariantColor(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     color_variant = models.ForeignKey(ColorVariant, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     offer_price = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-    stock = models.PositiveIntegerField()
+    stock = models.PositiveIntegerField(default=0)
     variant_deleted = models.BooleanField(default=False)
     on_offer = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)  # New field for the category
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    popularity = models.IntegerField(default=0)  # Popularity field
+    created_at = models.DateTimeField(auto_now_add=True) 
 
     def save(self, *args, **kwargs):
         self.slug = slugify(f"{self.product_variant}-{self.color_variant}")

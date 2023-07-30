@@ -1,0 +1,98 @@
+{% extends 'adminpages/baseadmin.html' %} 
+{% load static %}
+{% block title %} View Product {% endblock title %}
+
+{% block content %}
+<section style="background-color: #110f0f;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col class="card-body text-center"">
+        
+            
+              <h3 > User Profile</h3>
+            
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body text-center">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
+                class="rounded-circle img-fluid" style="width: 150px;">
+              <h5 class="my-3">{{user.username}}</h5>
+                    {% if user.is_active and not user.is_staff %}
+                        <p class="text-success mb-0">Active</p>
+                    {% elif user.is_staff  %}
+                        <p class="text-danger mb-0">Deleted</p>
+                    {% elif not user.is_active  %}
+                    <p class="text-danger mb-0">Banned</p>
+                    {% endif %}
+            </div>
+          </div>
+          <div class="card mb-4 mb-lg-0">
+            <div class="card-body p-0">
+              
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">User ID</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-white mb-0">{{user.id}} </p>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <p class="mb-0">User Name</p>
+                    </div>
+                    <div class="col-sm-9">
+                      <p class="text-white mb-0">{{user.username}} </p>
+                    </div>
+                  </div>
+                  <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Full Name</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-white mb-0">{{user.first_name}} {{user.last_name}}</p>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Email</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-whitemb-0">{{user.email}}</p>
+                </div>
+              </div>
+              <hr>
+              
+              
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Mobile</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-white mb-0">{{phonenumber.phone_number}}</p>
+                </div>
+              </div>
+              <hr>
+              
+            
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endblock content %}

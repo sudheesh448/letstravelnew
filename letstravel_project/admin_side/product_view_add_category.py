@@ -6,10 +6,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control,never_cache
+from psycopg import IntegrityError
 from admin_side.forms import ImageForm
 from order.models import OrderItem
 from order.models import Order
-from .models import Category
+from .models import Category, ColorVariant
 from .models import Category, Variant, Product, ProductImage
 from django.core.paginator import Paginator
 from .models import Product, ProductVariant, ProductVariantColor, ProductImage
@@ -23,6 +24,12 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
 from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from .models import Product, ProductVariant, ProductVariantColor
+from django.shortcuts import render, redirect, reverse
+from django.http import JsonResponse
+from django.db import IntegrityError
+from .models import Product, Variant, ProductVariant, ProductVariantColor
 
 
 
@@ -125,13 +132,19 @@ def ordertableadmin(request):
     }
     return render(request, 'adminpages/orders.html', context)
 
-def order_viewadmin(request,order_id):
-    orderss = Order.objects.get(id=order_id)
-    view_order = OrderItem.objects.filter(order=orderss)
-    context ={
-        'view_order':view_order
+def order_viewadmin(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    view_order = OrderItem.objects.filter(order=order)
+    user = order.user
+    address = order.address
+
+    context = {
+        'order': order,
+        'view_order': view_order,
+        'user': user,
+        'address': address,
     }
-    return render(request,"adminpages/order_viewadmin.html",context)
+    return render(request, "adminpages/order_viewadmin.html", context)
 
 
 def Shipped_order(request,order_id):
@@ -162,9 +175,14 @@ def viewproduct(request, product_id):
         product.save()   
     category = product.category
     variants = Variant.objects.filter(category_id=category.pk)
+    colors = ColorVariant.objects.all()
+    request.session['last_product_key'] = product.pk
+    print(request.session['last_product_key'])
     context = {
         'product': product,
         'variants':variants,
+        'category':category,
+        'colors':colors
     }
     return render(request, 'adminpages/viewproduct.html', context)
 from django.shortcuts import get_object_or_404, redirect
@@ -177,10 +195,11 @@ def mark_variant_deleted(request):
         product_variant_color.variant_deleted = True
         product_variant_color.save()
         product =  product_variant_color.product_variant.product
+        product_id = product.pk
         context = {
         'product': product,
          }
-        return render(request, 'adminpages/viewproduct.html', context)
+        return redirect(viewproduct,product_id )
 
     
 def mark_variant_revoked(request):
@@ -190,10 +209,11 @@ def mark_variant_revoked(request):
         product_variant_color.variant_deleted = False
         product_variant_color.save()
         product =  product_variant_color.product_variant.product
+        product_id = product.pk
         context = {
         'product': product,
          }
-        return render(request, 'adminpages/viewproduct.html', context)
+        return redirect(viewproduct,product_id )
     
 
 def update_price_stock(request):
@@ -212,12 +232,66 @@ def update_price_stock(request):
         return render(request, 'adminpages/viewproduct.html', context)
     
 
-def add_new_variant(request):
-    variant  = request.POST.get('variant')    
-    product_id = request.POST.get('product_id')
-    product_variant = ProductVariant.objects.create(product=product_id, variant=variant)
-    pass
+# views.py
 
+def add_new_variant(request):
+    if request.method == 'POST':
+        variant_id = request.POST.get('variant')
+        product_id = request.POST.get('product_id')
+        color_variant = request.POST.get('color')
+        price = request.POST.get('price')
+        stock = request.POST.get('stock')
+        
+
+        try:
+            product = Product.objects.get(pk=product_id)
+            
+            variant = Variant.objects.get(pk=variant_id)
+            category = product.category
+            colorvariant = ColorVariant.objects.get(pk=color_variant)
+
+            # Try to get or create the ProductVariant instance
+            product_variant, created = ProductVariant.objects.get_or_create(
+                product=product,
+                variant=variant
+            )
+
+            # Check if the ProductVariantColor instance exists
+            product_variant_color_exists = ProductVariantColor.objects.filter(
+                product_variant=product_variant,
+                color_variant=colorvariant
+            ).exists()
+
+            if product_variant_color_exists:
+                # Show error message if the ProductVariantColor instance already exists
+                return JsonResponse({'success': False, 'message': 'Product variant  already exists.'})
+            else:
+                # Create the ProductVariantColor instance if it doesn't exist
+                ProductVariantColor.objects.create(
+                    product_variant=product_variant,
+                    color_variant=colorvariant,
+                    price=price,
+                    stock=stock,
+                    category=category,
+                    product=product
+                )
+
+            # Return success response with product ID
+                return JsonResponse({'success': True, 'product_id': product_id})
+
+        except IntegrityError:
+            # Handle any database-related errors or validation errors
+            # You can show an error message or return an error response
+            return JsonResponse({'success': False, 'message': 'An error occurred while adding the variant.'})
+
+    # Handle other HTTP methods if needed
+    # ...
+
+    # Render your template if needed (initial render without redirect)
+    return render(request, 'your_template.html')
+
+
+       
 def cancel_orders_admin(request,order_id):
     order = get_object_or_404(Order, id=order_id)
     items = OrderItem.objects.filter(order=order)
@@ -240,6 +314,32 @@ def cancel_orders_admin(request,order_id):
                 variant.save()
                 print("hiii")
     return redirect('ordertableadmin')
+
+# views.py
+from django.shortcuts import render, redirect, reverse
+from django.http import JsonResponse
+from .models import ProductImage
+
+def delete_image(request):
+    if request.method == 'POST':
+        image_id = request.POST.get('image_id')
+        try:
+            # Find the image by ID and delete it
+            image = ProductImage.objects.get(pk=image_id)
+            image.delete()
+
+            return JsonResponse({'success': True})
+
+        except ProductImage.DoesNotExist:
+            # Image with the given ID does not exist
+            return JsonResponse({'success': False, 'message': 'Image not found'})
+
+    # Handle other HTTP methods if needed
+    # ...
+
+    # Return a JsonResponse with appropriate error message if needed
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
 
 
 

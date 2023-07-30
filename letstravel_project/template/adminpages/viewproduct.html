@@ -11,7 +11,7 @@
         <div class="card-body row"><h5 class="title text-white mb-2"> Category of the product : {{product.category }}</h5></div>
 
         <h5>Edit the Details</h5>
-        <form method="POST" class="form">
+        <form method="POST" class="form name-form">
             {% csrf_token %}
             <div class="form-group row">
                 <label for="id_name" class="col-sm-2 col-form-label">Name:</label>
@@ -35,22 +35,46 @@
 </div>
 
 
-<div class="col-lg-12 grid-margin stretch-card ">
+<div class="col-lg-12 grid-margin stretch-card">
     <div class="card p-3">
         <h5>Select new variant to add</h5>
-        <form method="POST" action="{% url 'add_new_variant' %}">
+        <form method="POST" class="add-variant-form" action="{% url 'add_new_variant' %}">
             {% csrf_token %}
-            <input type="hidden" name="product_id" value="{{ product_id }}">
-            <select class="col-lg-3" name="variant">
-                {% for variant in variants %}
-                    <option value="{{ variant.id }}">{{ variant.name }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn btn-primary mt-2">Add Variant</button>
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <div class="form-row">
+                <div class="form-group col-lg-2">
+                    <select class="form-control text-white" name="variant" required>
+                        <option value="" selected disabled>Select a variant</option>
+                        {% for variant in variants %}
+                            <option value="{{ variant.id }}">{{ variant.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-lg-2">
+                    <select class="form-control text-white" name="color" required>
+                        <option value="" class="text-white" selected disabled>Select a color</option>
+                        {% for color in colors %}
+                            <option class="text-white" value="{{ color.id }}">{{ color.color }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-lg-2 text-white">
+                    <input type="number" name="price" placeholder="Enter price" class="form-control text-white">
+                </div>
+                <div class="form-group col-lg-2 text-white">
+                    <input type="number" name="stock" placeholder="Enter stock " class="form-control text-white">
+                </div>
+                <div class="form-group col-lg-2">
+                     <button type="submit" class="btn btn-primary btn-block mt-1">Add Variant</button>
+                </div>
+            </div>
         </form>
+        
+        <!-- Modal for Error Message -->
+                
     </div>
-    
 </div>
+
 
 
 
@@ -103,25 +127,25 @@
                                     <td>
                                         {% if product_variant_color.variant_deleted is True %}
                                         <div class="mb-2">
-                                        <form method="POST" class="form" action="{% url 'mark_variant_revoked' %}">
+                                        <form method="POST" class="form revoke-form" action="{% url 'mark_variant_revoked' %}">
                                             <input type="hidden" name="product_id" value="{{ product_variant.id }}">
                                             <input type="hidden" name="product_variant_color_id" value="{{ product_variant_color.id }}">
                                             {% csrf_token %}
-                                        <button type="submit" class="btn btn-success me-2" role="button">Revoke</button>
+                                        <button type="submit" class="btn btn-success me-2 revoke-form" role="button">Revoke</button>
                                         </form>
                                         </div>
                                         
                                         {% else %}
                                         <div class="mb-2">
-                                        <form method="POST" class="form" action="{% url 'mark_variant_deleted' %}">
+                                        <form method="POST" class="form delete-form" action="{% url 'mark_variant_deleted' %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="product_variant_color_id" value="{{ product.id }}">
                                         <input type="hidden" name="product_variant_color_id" value="{{ product_variant_color.id }}">
-                                        <button type="submit" class="btn btn-danger me-2" role="button">Delete</button>
+                                        <button type="submit"  class=" mr-1 ml-1 btn btn-danger me-2 delete-form" role="button">Delete</button>
                                         </form>
                                          </div>
                                         {% endif %}
-                                        <a class="btn btn-info" href="#" role="button">Edit</a>
+                                        <a href="#" class="btn btn-primary upload-btn" onclick="openPopup('{% url 'upload_images' product_variant_color.id %}')">Update <br> Image</a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -132,5 +156,86 @@
         </div>
     </div>
 </div>
+
+<!-- Include the SweetAlert script -->
+<!-- Include the SweetAlert script -->
+<script>
+    $('form').not('.revoke-form, .delete-form, .name-form').on('submit', function (event) {
+        event.preventDefault();
+        var formData = $(this).serialize();
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "add_new_variant" %}',
+            data: formData,
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    // Show success message as pop-up
+                    var successModal = $('<div class="modal" tabindex="-1" role="dialog">' +
+                        '<div class="modal-dialog modal-dialog-centered" role="document">' +
+                        '<div class="modal-content">' +
+                        '<div class="modal-header">' +
+                        '<h4 class="modal-title text-success font-weight-bold">Success</h4>' +
+                        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                        '<span aria-hidden="true">&times;</span>' +
+                        '</button>' +
+                        '</div>' +
+                        '<div class="modal-body">Variant successfully saved! <br> Please upload images to list in the customer side <br> Select the update images button from your product varaint list </div>' +
+                        '<div class="modal-footer">' +
+                        '<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>');
+
+                    // Append the modal to the container and show it
+                    $('#message-modal-container').empty().append(successModal);
+                    successModal.modal('show');
+
+                    // Reload the page when OK button is clicked
+                    successModal.on('hidden.bs.modal', function () {
+                        location.reload();
+                    });
+
+                } else {
+                    // Show error message as pop-up
+                    var errorModal = $('<div class="modal" tabindex="-1" role="dialog">' +
+                        '<div class="modal-dialog modal-dialog-centered" role="document">' +
+                        '<div class="modal-content">' +
+                        '<div class="modal-header">' +
+                        '<h4 class="modal-title text-danger font-weight-bold">Error</h4>' +
+                        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                        '<span aria-hidden="true">&times;</span>' +
+                        '</button>' +
+                        '</div>' +
+                        '<div class="modal-body">' + data.message + '</div>' +
+                        '<div class="modal-footer">' +
+                        '<button type="button" class="btn btn-danger" data-dismiss="modal">OK</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>');
+
+                    // Append the modal to the container and show it
+                    $('#message-modal-container').empty().append(errorModal);
+                    errorModal.modal('show');
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle AJAX error here
+            }
+        });
+    });
+</script>
+
+<script>
+    function openPopup(url) {
+      window.open(url, 'Upload Image', 'width=800,height=600');
+    }
+  </script>
+
+
+
 
 {% endblock content %}

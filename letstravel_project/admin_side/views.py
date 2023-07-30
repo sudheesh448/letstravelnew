@@ -20,7 +20,7 @@ def adminlogin(request):
             if request.user.is_superuser:
                 return redirect('dashboard')
             else:
-            
+                logout(request)  # Logout the currently logged-in user
                 return redirect('adminlogin')
 
         if request.method =='POST':
@@ -55,7 +55,9 @@ def dashboard(request):
         total_revenue_week=Order.get_total_revenue_week()
         total_revenue_day=Order.get_total_revenue_day()
 
-
+        if 'last_product_key' in request.session:
+            del request.session['last_product_key']
+            request.session.flush()
 
         context={ 
             'users_data':users_data,
@@ -100,7 +102,7 @@ def add_product(request):
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
         category_id = request.POST.get('category')
-        
+
         variant_ids = request.POST.getlist('variants')
         product_description = request.POST.get('product_description')
         product_code = request.POST.get('product_code')
@@ -170,14 +172,23 @@ def save_product_variant_color(request):
         category = get_object_or_404(Category, id=category_id)
         
         # Create a new ProductVariantColor instance
-        product_variant_color = ProductVariantColor(
-            product_variant_id=product_variant_id,
-            color_variant_id=color_variant_id,
-            price=price,
-            stock=stock,
-            category=category
-        )
-        product_variant_color.save()
+        try:
+            # Try to fetch an existing ProductVariantColor with the given combination
+            product_variant_color = ProductVariantColor.objects.get(
+                product_variant_id=product_variant_id,
+                color_variant_id=color_variant_id
+            )
+        except ProductVariantColor.DoesNotExist:
+            # If the combination does not exist, create a new ProductVariantColor instance
+            product_variant_color = ProductVariantColor.objects.create(
+                product_variant_id=product_variant_id,
+                color_variant_id=color_variant_id,
+                price=price,
+                stock=stock,
+                category=category,
+                product=product
+            )
+
 
         def get_product_id(request):
             product_variant_id = request.POST.get('product_variant_id')
@@ -207,14 +218,20 @@ def save_product_variant_color(request):
         'category_id': category_id,  # Pass the category ID to the context
         'category': category,
         }
-
         # Redirect to a success page or perform any desired action
         return render(request, 'adminpages/select_color.html', context)
     else:
+        context = {
+        'product_id': product_id,
+        'product_variants': product_variants,
+        'colors': colors,
+        'saved_color_ids': saved_color_ids,
+        'product_variant_colors':product_variant_colors,
+        'category_id': category_id,  # Pass the category ID to the context
+        'category': category,
+        }
         # Handle the case when the request method is not POST
-        return redirect('error')  # Redirect to an error page or handle the case differently
-
-
+        return render(request, 'adminpages/select_color.html', context)
 from django.http import JsonResponse
 def get_color_checkboxes(request):
     if request.method == "GET":

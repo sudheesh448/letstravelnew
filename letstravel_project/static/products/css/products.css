@@ -1,0 +1,8 @@
+.bg-white-background-with-shadow{
+    background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(255, 87, 87, 0.1);
+  }
+  .blockimage{
+    height: 210px;
+    
+  }

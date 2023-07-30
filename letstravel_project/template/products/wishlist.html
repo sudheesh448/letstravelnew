@@ -1,0 +1,167 @@
+<!-- Product -->
+{% extends 'products/productbase.html' %} 
+{%load static%}
+{% block title %} Shop {% endblock title %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'products/css/products.css' %}">
+<section class="bg0 p-t-23 p-b-130">
+    <br>
+    <div class="mt-lg-5"></div>
+    <div class="container ">
+        <div class="p-b-10  ">
+            <h3 class="ltext-103 cl5 text-danger">
+                WISH LIST
+            </h3>
+            <hr class="bg-info">
+        </div>
+
+        <div class="flex-w flex-sb-m p-b-52">     
+        </div>
+
+        <div class="row isotope-grid " id="wishlist-container">
+            {% if products %}
+                {% for product_color in products %}
+                {% with product_image=product_color.productimage_set.first %}
+                                    {% if product_image %}
+                    <div class="col-6 col-md-4 col-lg-2 p-b-35 isotope-item ">
+                        <!-- Block2 -->
+                        <div class="block2">
+                            <div class="block2-pic hov-img0">
+                                
+                                <img src="{{ product_image.image.url }}" alt="Product Image" class="blockimage">
+                                    
+                                 {% if product_color.stock > 0 %}   
+                                <a href="{{ product_color.get_absolute_url }}" class="block2-btn flex-c-m cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                                    Quick View
+                                </a>
+                                {% else %}
+                                <a href="{{ product_color.get_absolute_url}}" class="block2-btn flex-c-m  cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 bg-danger ">
+                                    Out Of Stock
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="block2-txt flex-w flex-t p-t-14 bg-white-background-with-shadow ">
+                                <div class="block2-txt-child1 flex-col-l">
+                                    <a href="{{ product_color.get_absolute_url }}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6 text-dark font-weight-bold">
+                                        {{ product_color.product_variant.product.name }}
+                                    </a>
+
+                                    <div class="row mx-0">
+                                        
+                                    <span class=" cl3 small text-dark font-weight-bold">
+                                        {{ product_color.product_variant.variant.name }}
+                                    </span>
+                                    <span class=" cl3 mx-3 small text-dark font-weight-bold">
+                                        {{ product_color.color_variant.color }}
+                                    </span>
+                                </div>
+                                    <span class="stext-80">
+                                        {% if product_color.on_offer and product_color.offer_price %}
+                                        <div class="row mx-0">
+                                            <p><span style="text-decoration: line-through;" class="small">₹{{ product_color.price }}</span></p>
+                                            <p class="small mt-1 ml-3 text-danger font-weight-bold">₹{{ product_color.offer_price }}</p>
+                                        </div>
+                                        {% else %}
+                                            <p class="small mt-1 text-dark font-weight-bold">₹{{ product_color.price }}</p>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div  class="block2-txt-child2 flex-r p-t-3 mr-0">
+                                    {% if product_color.id in wishlist_items_product_variant_color_ids %}
+                                      <a  href="#" class="remove-from-wishlist dis-block pos-relative js-removedwish-b2" data-product-id="{{ product_color.id }}">
+                                        <img id="heart-icon-{{ product_color.id }}" class="icon-heart2 dis-block trans-04" src="{% static 'images/icon/icon-heart-02.png' %}" alt="ICON" >
+                                      </a>
+                                    {% else %}
+                                      <a  href="#" class="add-to-wishlist dis-block pos-relative js-addwish-b2" data-product-id="{{ product_color.id }}">
+                                        <img id="heart-icon-{{ product_color.id }}" class="icon-heart1 dis-block trans-04" src="{% static 'images/icon/icon-heart-01.png' %}" alt="ICON">
+                                      </a>
+                                    {% endif %}
+                                  </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                  {% endwith %}
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <h3>No products available.</h3>
+                </div>
+            {% endif %}
+        </div>
+        
+
+        <!-- Pagination -->
+        <!-- Pagination -->
+        <div class="flex-w flex-c-m p-t-45">
+            <!-- Previous Page -->
+            {% if products.has_previous %}
+            <a href="?page={{ products.previous_page_number }}" class="flex-c-m how-pagination1 trans-04 m-all-7">
+                <i class="zmdi zmdi-arrow-left"></i>
+            </a>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            {% for page in products.paginator.page_range %}
+            <a href="?page={{ page }}" class="flex-c-m how-pagination1 trans-04 m-all-7 {% if products.number == page %}pagination-active{% endif %}">
+                {{ page }}
+            </a>
+            {% endfor %}
+
+            <!-- Next Page -->
+            {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" class="flex-c-m how-pagination1 trans-04 m-all-7">
+                <i class="zmdi zmdi-arrow-right"></i>
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+      
+  
+      $('.remove-from-wishlist').click(function (event) {
+        event.preventDefault();
+        const productId = $(this).data('product-id');
+  
+        $.ajax({
+          url: '/remove_from_wishlist/', // Replace with your Django URL to handle removing from wishlist
+          type: 'POST',
+          data: {
+            product_id: productId,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          success: function (data) {
+            $('#heart-icon-' + productId).removeClass('icon-heart2').addClass('icon-heart1');
+            $(this).removeClass('remove-from-wishlist').addClass('add-to-wishlist');
+            console.log("remove success")
+            location.reload();
+            
+          },
+          error: function (xhr, status, error) {
+            console.log(" remove error")
+          },
+        });
+      });
+    });
+  </script>
+
+  <script>
+    $('.js-removewish-b2').on('click', function(e){
+        e.preventDefault();
+    });
+    $('.js-removedwish-b2').each(function(){
+        var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
+        $(this).on('click', function(){
+            swal(nameProduct, "is removed from wishlist !", "");
+
+            $(this).addClass('js-addedwish-b2');
+            $(this).off('click');
+        });
+    });
+  </script>
+
+{% endblock content %}

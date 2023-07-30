@@ -3,7 +3,13 @@
 {% block title %}Sales Report{% endblock title %}
 
 {% block content %}
-<div class="container">
+<!-- Add this script tag to include jsPDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.js" integrity="sha512-tEqLjoRgU47rrCeCRKlUjDeDD7IbMCf/dpcedUG6pXUCZOweBDCg8+8H+XdiTNptUU+TK18r5DPKZFKxLPSWsg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+<div class="container " id="sales-report">
+  
   <div class="row">
     <div class="col-md-8 offset-md-2">
       <div class="letter-pad">
@@ -60,8 +66,12 @@
       </div>
     </div>
   </div>
+  <a href="#" class="btn btn-primary" id="downloadPDFButton" onclick="downloadPDF()">Download PDF</a>
 </div>
-<a href="{% url 'sales_report_pdf' %}" class="btn btn-primary">Download PDF</a>
+
+
+
+
 
 
 <style>
@@ -94,4 +104,37 @@
     color: #333; /* Adjust the color as needed */
   }
 </style>
+
+<script>
+  function downloadPDF() {
+    const salesReportContent = document.getElementById('sales-report').innerHTML;
+    
+    const docDefinition = {
+      content: [
+        { text: 'Sales Report', style: 'header' },
+        { text: salesReportContent, style: 'body' }
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          margin: [0, 0, 0, 10]
+        },
+        body: {
+          fontSize: 12,
+          margin: [0, 0, 0, 10]
+        }
+      }
+    };
+
+    const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+    pdfDocGenerator.download('sales_report.pdf');
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const downloadPDFButton = document.getElementById('download-pdf-btn');
+    downloadPDFButton.addEventListener('click', downloadPDF);
+  });
+</script>
+
 {% endblock content %}

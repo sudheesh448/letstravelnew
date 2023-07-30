@@ -72,3 +72,5 @@ def update_cart_totals_on_quantity_change(sender, instance, **kwargs):
     if instance.quantity != instance.pk:
         instance.subtotal = instance.price * instance.quantity
         instance.cart.save()
+
+

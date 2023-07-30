@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 
 from admin_side.models import Product
+from admin_side.models import PhoneNumber
 
 
 
@@ -52,8 +53,17 @@ def revoke_product(request,product_id):
 
 
 
-def viewcustomer(request,customer_id):
-    pass
+def viewcustomer(request, customer_id):
+    user = get_object_or_404(User, id=customer_id)
+    try:
+        phone_number = PhoneNumber.objects.get(user=user)
+    except PhoneNumber.DoesNotExist:
+        phone_number = None
+    context = {
+        'user': user,
+        'phone_number': phone_number,
+    }
+    return render(request, 'adminpages/view_user.html', context)
 
 def bancustomer(request, customer_id):
     # Retrieve the customer instance

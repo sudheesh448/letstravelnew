@@ -103,11 +103,19 @@ def profile_view(request):
         user.save() 
         return redirect('profile_view')  # Redirect to the profile view or any other desired page after updating
      address = UserAddress.objects.filter(user = request.user)
-     referral_code = PhoneNumber.objects.get(user=request.user).referral_code
-     context = {
+     try:
+        phone_number = PhoneNumber.objects.get(user=request.user)
+        referral_code = phone_number.referral_code
+        context = {
         'address':address,
         'referral_code': referral_code,
      }
+     except PhoneNumber.DoesNotExist:
+        context = {
+        'address':address,
+        
+     }
+     
      return render(request,'profile/profile.html',context)
 
 
@@ -125,4 +133,41 @@ def delete_address(request):
         useraddress = UserAddress.objects.get(id=user_add_id)
         useraddress.delete()
         return redirect('profile_view')
+     
+
+def edit_address_profile(request,address_id):
+     try:
+        user_address = UserAddress.objects.get(id=address_id, user=request.user)
+     except UserAddress.DoesNotExist:
+        return HttpResponse('Address not found.')
+     if request.method == 'POST':
+        # Get form data from the request
+        first_name = request.POST.get('fname')
+        last_name = request.POST.get('lname')
+        address_line_1 = request.POST.get('address1')
+        address_line_2 = request.POST.get('address2')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        postal_code = request.POST.get('pincode')
+        country = request.POST.get('country')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone')
+        # Update the user address fields
+        user_address.first_name = first_name
+        user_address.last_name = last_name
+        user_address.address_line_1 = address_line_1
+        user_address.address_line_2 = address_line_2
+        user_address.city = city
+        user_address.state = state
+        user_address.postal_code = postal_code
+        user_address.country = country
+        user_address.email = email
+        user_address.phone_number = phone_number
+        # Save the updated user address
+        user_address.save()
+        return redirect('profile_view')
+     context = {
+         'user_address':user_address
+     }
+     return render(request,'profile/edit_address.html',context)
      

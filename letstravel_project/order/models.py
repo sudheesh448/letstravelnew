@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from decimal import Decimal, ROUND_DOWN
+from decimal import Decimal, ROUND_DOWN, InvalidOperation
 # Create your models here.
 
 def quantize_decimal(value):
@@ -109,7 +109,10 @@ class Order(models.Model):
         
         # Query the Order model to get the total revenue for the current week
         total_revenue = Order.objects.filter(order_date__date__range=(start_date, end_date)).aggregate(total_revenue=Sum('total_price'))['total_revenue']
-        total_revenue= Decimal(str(total_revenue))
+        try:
+            total_revenue = Decimal(str(total_revenue))
+        except InvalidOperation:
+            total_revenue = Decimal('0')  # Set a default value or handle the error as you prefer
         return quantize_decimal(total_revenue)
     @staticmethod
     def get_total_revenue_day():
