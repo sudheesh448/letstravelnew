@@ -1,7 +1,7 @@
 import random
 from django.http import JsonResponse
-from django.shortcuts import render
-
+from django.shortcuts import redirect, render
+from django.contrib import messages
 from admin_side.models import Product
 
 # def home(request):
@@ -52,12 +52,6 @@ def home(request, category_id=None):
         context = {
         'products': page,
          }
-
-
-    
-    
-    
-
     return render(request, 'products/index.html', context)
 
 
@@ -170,22 +164,25 @@ def shop(request, query=None,category_id=None):
 
     user = request.user
     
-    # Fetch the user's wishlist or create one if it doesn't exist
-    wishlist, created = Wishlist.objects.get_or_create(user=user)
-
-    # Fetch the wishlist items for the user
-    wishlist_items = WishlistItem.objects.filter(wishlist=wishlist)
-    wishlist_items_product_variant_color_ids = list(wishlist_items.values_list('product_variant_color__id', flat=True))
-    
-
-    context = {
+    if user.is_authenticated:
+        wishlist, created = Wishlist.objects.get_or_create(user=user)
+        wishlist_items = WishlistItem.objects.filter(wishlist=wishlist)
+        wishlist_items_product_variant_color_ids = list(wishlist_items.values_list('product_variant_color__id', flat=True))
+        context = {
         'products': page,
         'search_query': search_query,  # Pass the search query to the template
         'category_id': category_id,
         'wishlist_items_product_variant_color_ids': wishlist_items_product_variant_color_ids
     }
+    else:
+         context = {
+        'products': page,
+        'search_query': search_query,  # Pass the search query to the template
+        'category_id': category_id,
+    }
 
-
+        # If the user is anonymous, create a dummy wishlist with None as the user
+        
     return render(request, 'products/shop.html', context)
 
 from django.db.models import Q
@@ -254,17 +251,14 @@ def shop_filter(request):
     paginator = Paginator(products, 12)  # Show 12 products per page
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
-
     user = request.user
-    
-    # Fetch the user's wishlist or create one if it doesn't exist
-    wishlist, created = Wishlist.objects.get_or_create(user=user)
 
-    # Fetch the wishlist items for the user
-    wishlist_items = WishlistItem.objects.filter(wishlist=wishlist)
-    wishlist_items_product_variant_color_ids = list(wishlist_items.values_list('product_variant_color__id', flat=True))
+    if user.is_authenticated:
+        wishlist, created = Wishlist.objects.get_or_create(user=user)
+        wishlist_items = WishlistItem.objects.filter(wishlist=wishlist)
+        wishlist_items_product_variant_color_ids = list(wishlist_items.values_list('product_variant_color__id', flat=True))
 
-    context = {
+        context = {
         'products': products,
         'price_filters': price_filters,
         'color_filters': color_filters,
@@ -273,7 +267,17 @@ def shop_filter(request):
         'sort_price': sort_price,
         'out_of_stock': out_of_stock,
         'wishlist_items_product_variant_color_ids': wishlist_items_product_variant_color_ids
-    }
+         }
+    else:
+        context = {
+        'products': products,
+        'price_filters': price_filters,
+        'color_filters': color_filters,
+        'all_colors': all_colors,
+        'sort_new': sort_new,
+        'sort_price': sort_price,
+        'out_of_stock': out_of_stock,}
+
     
     return render(request, 'products/shop _filter.html', context)
 
