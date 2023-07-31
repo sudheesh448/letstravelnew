@@ -22,7 +22,7 @@ def home(request, category_id=None):
     if query:
         # If a search query is provided, call the 'shop' view with the query
         return shop(request, query)
-    print(query)
+    
     products = Product.objects.select_related('category').prefetch_related(
         'variants__productvariant_set__productvariantcolor_set__productimage_set'
     )
@@ -67,7 +67,14 @@ from admin_side.models import Product, ProductVariant, ProductVariantColor
 
 
 def productdetails(request, slug):
-    product_variant_color = ProductVariantColor.objects.get(slug=slug)
+
+
+    try:
+        product_variant_color = ProductVariantColor.objects.get(slug=slug)
+    except ProductVariantColor.DoesNotExist:
+        # Handle the case when the ProductVariantColor with the given slug does not exist
+        # For example, you can return a custom 404 page
+        return render(request, '404/404.html', status=404)
     product = product_variant_color.product_variant.product
     # colors = ColorVariant.objects.filter(productvariantcolor__product_variant = product_variant_color.product_variant)
     # variants = product.variants.all()

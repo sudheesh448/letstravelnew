@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.views.decorators.cache import cache_control,never_cache
 from psycopg import IntegrityError
 from admin_side.forms import ImageForm
@@ -32,7 +32,8 @@ from django.db import IntegrityError
 from .models import Product, Variant, ProductVariant, ProductVariantColor
 
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def add_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -41,11 +42,12 @@ def add_category(request):
         category = Category.objects.create(name=name, description=description)
         # Redirect to a success page or another view
         request.session['last_category_key'] = category.pk
-        print( request.session['last_category_key'])
+       
         return redirect('addvariants')  
     return render(request, 'adminpages/addcategory.html')
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def addvariants(request):
     category_id = request.session.get('last_category_key')    
     if category_id:
@@ -62,7 +64,8 @@ def addvariants(request):
         return redirect('dashboard')
     return render(request, 'adminpages/addvariants.html', {'category': name})
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def category_view(request):
     search_query = request.GET.get('search')
     category_list = Category.objects.prefetch_related('variants').all()
@@ -74,7 +77,8 @@ def category_view(request):
     return render(request, 'adminpages/categorylist.html', {'categories': categories, 'search_query': search_query})
 
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def category_update(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
     
@@ -96,7 +100,8 @@ def category_update(request, category_id):
 
 
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def productlist(request):
     query = request.GET.get('query')
     products = Product.objects.select_related('category').prefetch_related(
@@ -113,6 +118,8 @@ def productlist(request):
     }
     return render(request, 'adminpages/productlist.html', context)
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def ordertableadmin(request):
     search_query = request.GET.get('q')
     order_list = Order.objects.order_by('-id')
@@ -132,6 +139,8 @@ def ordertableadmin(request):
     }
     return render(request, 'adminpages/orders.html', context)
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def order_viewadmin(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     view_order = OrderItem.objects.filter(order=order)
@@ -146,7 +155,8 @@ def order_viewadmin(request, order_id):
     }
     return render(request, "adminpages/order_viewadmin.html", context)
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def Shipped_order(request,order_id):
     order = get_object_or_404(Order, id=order_id)
     if order.status != 'PAID' and order.status != 'CANCELLED':
@@ -163,7 +173,8 @@ def Delivered_order(request,order_id):
             order.save()
     return redirect('ordertableadmin')
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def viewproduct(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
 
@@ -177,7 +188,7 @@ def viewproduct(request, product_id):
     variants = Variant.objects.filter(category_id=category.pk)
     colors = ColorVariant.objects.all()
     request.session['last_product_key'] = product.pk
-    print(request.session['last_product_key'])
+    
     context = {
         'product': product,
         'variants':variants,
@@ -187,7 +198,8 @@ def viewproduct(request, product_id):
     return render(request, 'adminpages/viewproduct.html', context)
 from django.shortcuts import get_object_or_404, redirect
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def mark_variant_deleted(request):
     if request.method == 'POST':
         product_variant_color_id = request.POST.get('product_variant_color_id')
@@ -201,7 +213,8 @@ def mark_variant_deleted(request):
          }
         return redirect(viewproduct,product_id )
 
-    
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def mark_variant_revoked(request):
     if request.method == 'POST':
         product_variant_color_id = request.POST.get('product_variant_color_id')
@@ -215,7 +228,8 @@ def mark_variant_revoked(request):
          }
         return redirect(viewproduct,product_id )
     
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def update_price_stock(request):
     if request.method == 'POST':
         product_variant_color_id = request.POST.get('product_variant_color_id')
@@ -233,7 +247,8 @@ def update_price_stock(request):
     
 
 # views.py
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def add_new_variant(request):
     if request.method == 'POST':
         variant_id = request.POST.get('variant')
@@ -291,13 +306,14 @@ def add_new_variant(request):
     return render(request, 'your_template.html')
 
 
-       
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser) 
 def cancel_orders_admin(request,order_id):
     order = get_object_or_404(Order, id=order_id)
     items = OrderItem.objects.filter(order=order)
     if order.status != 'PAID' and order.status != 'CANCELLED':
             # Update the payment status to 'CANCELLED'
-            print(order.user.email) 
+            
             order.status = 'CANCELLED'
             order.save()
 
@@ -312,7 +328,7 @@ def cancel_orders_admin(request,order_id):
                 variant = order_item.product   
                 variant.stock += order_item.quantity
                 variant.save()
-                print("hiii")
+                
     return redirect('ordertableadmin')
 
 # views.py
@@ -320,6 +336,8 @@ from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
 from .models import ProductImage
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def delete_image(request):
     if request.method == 'POST':
         image_id = request.POST.get('image_id')

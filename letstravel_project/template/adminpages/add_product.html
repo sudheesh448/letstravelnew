@@ -2,6 +2,15 @@
 {% block title %} Sign In {% endblock title %}
 
 {% block content %}
+{% if messages %}
+  <div class="custom-alert alert alert-danger">
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
 <div class="col-12 grid-margin">
   <div class="card">
     <div class="card-body">

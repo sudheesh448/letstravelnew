@@ -7,9 +7,15 @@ from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login,logout
-
 from admin_side.models import PhoneNumber
-
+from datetime import datetime
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.utils.crypto import get_random_string
+from django.utils import timezone
+from twilio.rest import Client
+from django.conf import settings
 
 def register(request):
     if request.user.is_authenticated :
@@ -27,7 +33,6 @@ def register(request):
             if User.objects.filter(username=username):
                 messages.error(request, "Username already exist..!!")
                 return redirect('register')
-            
             if User.objects.filter(email=email):
                 messages.error(request," Email already registered..!!")
                 return redirect('register')
@@ -79,6 +84,8 @@ def register(request):
 
 
 def verify_otp(request):
+    if request.user.is_authenticated :
+        return redirect('home')
     if request.method == 'POST':
         entered_otp = request.POST.get('otp')
         saved_otp = request.session.get('otp')
@@ -126,8 +133,10 @@ def verify_otp(request):
 
 
 def resend_otp(request):
+    if request.user.is_authenticated :
+        return redirect('home')
     email = request.session.get('email')
-    print("eeee")
+   
     otp = get_random_string(length=6, allowed_chars='1234567890')
     expiry = datetime.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
         # Update the OTP and its expiry time in the session
@@ -142,7 +151,7 @@ def resend_otp(request):
         fail_silently=False,
     )
     messages.success(request, 'OTP send to your email ID!')
-    print(send_mail)
+    
         
     messages.info(request, 'New OTP sent. Please check your email.')
     return redirect('verify_otp')
@@ -156,6 +165,8 @@ def resend_otp(request):
 
 
 def signin(request):
+    if request.user.is_authenticated :
+        return redirect('home')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -192,6 +203,8 @@ def signin(request):
     return render(request, 'login.html')
 
 def otp_verification(request):
+    if request.user.is_authenticated :
+        return redirect('home')
     if request.method == 'POST':
         entered_otp = request.POST.get('otp_login')
         saved_otp = request.session.get('otp')
@@ -223,24 +236,27 @@ def otp_verification(request):
     return render(request, 'verifylogin.html')
 
 
-def resend_otp_signin(request):    
-        email = request.session.get('email')
-        otp = get_random_string(length=6, allowed_chars='1234567890')
-        expiry = datetime.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
-        # Update the OTP and its expiry time in the session
-        request.session['otp'] = otp
-        request.session['otp_expiry'] = expiry.strftime('%Y-%m-%d %H:%M:%S')
-        # Send the new OTP to the user's email
-        send_mail(
-            'OTP Verification',
-            f'Your new OTP is: {otp}',
-            'your_email@example.com',  # Replace with your email address
-            [email],
-            fail_silently=False,
-        )
-        messages.success(request, 'OTP send to your email ID!')
-        messages.info(request, 'New OTP sent. Please check your email.')
-        return redirect('otp_verification')
+def resend_otp_signin(request):
+        if request.user.is_authenticated :
+             return redirect('home')    
+        else:
+             email = request.session.get('email')
+             otp = get_random_string(length=6, allowed_chars='1234567890')
+             expiry = datetime.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
+             # Update the OTP and its expiry time in the session
+             request.session['otp'] = otp
+             request.session['otp_expiry'] = expiry.strftime('%Y-%m-%d %H:%M:%S')
+             # Send the new OTP to the user's email
+             send_mail(
+                 'OTP Verification',
+                 f'Your new OTP is: {otp}',
+                 'your_email@example.com',  # Replace with your email address
+                 [email],
+                 fail_silently=False,
+             )
+             messages.success(request, 'OTP send to your email ID!')
+             messages.info(request, 'New OTP sent. Please check your email.')
+             return redirect('otp_verification')
 
 def signout(request):
     if request.user.is_authenticated:
@@ -249,18 +265,16 @@ def signout(request):
 
 
 def signin_mobile_otp(request):
+    if request.user.is_authenticated :
+             return redirect('home')    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
-        print(username)
-
-        user = authenticate(request, username=username,password=password)
-        print(user)
+        user = authenticate(request, username=username,password=password)   
         if user is not None:
     # Generate a random OTP
             otp = get_random_string(length=6, allowed_chars='1234567890')
-            print(otp)
+            
     # Get the user's phone number from the request or any other source
             phone_number = '+918086611001'  # Replace with the user's actual phone number
 
@@ -271,15 +285,8 @@ def signin_mobile_otp(request):
             request.session['otp_expiry'] = (datetime.now() + timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
             request.session['pk'] = user.pk
             return redirect('mobile_otp_verification')
-        
-
     # ... Continue with your logic or rendering the response
     return render(request, 'authentication/MobileOtpLogin.html')
-
-
-
-from twilio.rest import Client
-from django.conf import settings
 
 def send_otp(phone_number, otp):
     account_sid = settings.TWILIO_ACCOUNT_SID
@@ -293,7 +300,6 @@ def send_otp(phone_number, otp):
         from_=twilio_phone_number,
         to=phone_number
     )
-
     return None
 
 def mobile_otp_verification(request):
@@ -302,10 +308,7 @@ def mobile_otp_verification(request):
         saved_otp = request.session.get('otp')
         expiry = request.session.get('otp_expiry')
         pk = request.session.get('pk')
-        print(saved_otp)
-        print(expiry)
-        print(pk)
-        print(entered_otp)
+        
 
         if not saved_otp or not expiry:    
             messages.error(request, 'OTP expired or invalid. Please try again.')
@@ -324,6 +327,8 @@ def mobile_otp_verification(request):
     return render(request, 'authentication/Mobileotpverify.html')
 
 def forgotpassword(request):
+    if request.user.is_authenticated :
+             return redirect('home')
     if request.method == 'POST':
         # Get the user's email from the form
         username = request.POST.get('username')
@@ -353,15 +358,9 @@ def forgotpassword(request):
 
     return render(request, 'authentication/forgotpassword.html')
 
-
-from datetime import datetime
-from django.contrib.auth.models import User
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.utils.crypto import get_random_string
-from django.utils import timezone
-
 def enter_otp_forgot_password(request):
+    if request.user.is_authenticated :
+             return redirect('home')    
     if request.method == 'POST':
         entered_otp = request.POST.get('otp')
         username = request.session.get('username')
@@ -387,6 +386,8 @@ def enter_otp_forgot_password(request):
     return render(request, 'authentication/otp_forgotpassword.html')
 
 def reset_password(request):
+    if request.user.is_authenticated :
+             return redirect('home')    
     if request.method == 'POST':
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')

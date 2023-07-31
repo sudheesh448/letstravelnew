@@ -13,18 +13,17 @@ from discount.models import Coupon,UserCoupon
 
 
 def addtocart(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST' :
         productvariantcolor_id = request.POST.get('product_variant_color_id')
-        print(productvariantcolor_id)
         # Retrieve the product based on the provided ID
         productvariantcolor = get_object_or_404(ProductVariantColor, id=productvariantcolor_id)
-        print(productvariantcolor_id)
         # Assuming the user is authenticated, retrieve their cart or create a new one
         cart, created = Cart.objects.get_or_create(user=request.user)
         # Check if the product is already in the cart
         cart_item = cart.items.filter(product_variant_color=productvariantcolor).first() 
-        print(productvariantcolor_id)
-
         if cart_item:
             # Increment the quantity if the product is already in the cart
             cart_item.quantity += 1
@@ -41,7 +40,7 @@ def shoppingcart(request):
         cart_items = cart.items.order_by('price')  # Order the items by price
     else:
         messages.warning(request, 'Sign in required to continue.')
-        return redirect('login_url')
+        return redirect('signin')
     
 
     # Get the applied coupons for the user with the condition applied=True and used=False
@@ -56,21 +55,25 @@ def shoppingcart(request):
     return render(request, 'cart/shop_cart.html', context)
 
 def remove_from_cart(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST':
         item_id = request.POST.get('item_id')
-        print(item_id)
+       
         cart_item = CartItem.objects.get(id=item_id)
         cart_item.delete()  
         return redirect('shoppingcart')
     return render(request, 'cart/shop_cart.html')
 
 def increment_quantity(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     cart_item_id = request.POST.get('item_id')
-    print(request.POST.get('item_id'))
+    
     cart_item = CartItem.objects.get(id=cart_item_id)
-    print(cart_item)
-    print(cart_item_id)
-    print("hii")
+    
     stock = cart_item.product_variant_color.stock
     if cart_item.quantity < stock:
         cart_item.quantity += 1
@@ -80,6 +83,9 @@ def increment_quantity(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def decrement_quantity(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     cart_item_id = request.POST.get('item_id')
     cart_item = CartItem.objects.get(id=cart_item_id)
     if cart_item.quantity > 1:
@@ -90,6 +96,9 @@ def decrement_quantity(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def apply_coupon(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon')
         try:

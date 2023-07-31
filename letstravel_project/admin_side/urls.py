@@ -59,7 +59,7 @@ urlpatterns = [
     path('order_status_chart_data/', views.order_status_chart_data, name='order_status_chart_data'), 
     path('revenue_chart_line/', views.revenue_chart_line, name='revenue_chart_line'), 
     path('sales_report_view/', views.sales_report_view, name='sales_report_view'), 
-    path('sales_report_pdf/', views.PDFView.as_view(), name='sales_report_pdf'),
+   
     path('delete_image/', product_view_add_category.delete_image, name='delete_image'),
     ]
 

@@ -294,6 +294,7 @@
                                             {% endif %}
                                         </span>
                                     </div>
+									{% if user.is_authenticated %}
                                     <div  class="block2-txt-child2 flex-r p-t-3 mr-0">
 										{% if product_color.id in wishlist_items_product_variant_color_ids %}
 										  <a href="#" class="remove-from-wishlist dis-block pos-relative js-removedwish-b2" data-product-id="{{ product_color.id }}">
@@ -305,6 +306,7 @@
 										  </a>
 										{% endif %}
 									  </div>
+									  {% endif %}
 									  
 									  
                                 </div>

@@ -6,11 +6,36 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.cache import cache_control,never_cache
-
 from admin_side.forms import ImageForm
 from order.models import Order
+from django.shortcuts import render, redirect
+from .models import ProductVariantColor
+from django.shortcuts import render, redirect
+from .models import Category, ColorVariant, Product, ProductImage, ProductVariant, Variant
+from django.shortcuts import render, redirect
+from .models import Product, Category, Variant, ColorVariant
+from django.db import IntegrityError
+from datetime import datetime, timedelta
+from django.db.models import Sum,Count
+from django.utils import timezone
+from django.core.paginator import Paginator
+from datetime import datetime
+from wkhtmltopdf.views import PDFTemplateView
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.template.backends.utils import csrf_input_lazy, csrf_token_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import View
+from django.middleware.csrf import get_token
+from django.middleware.clickjacking import XFrameOptionsMiddleware
+from django.middleware.csrf import CsrfViewMiddleware
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -78,6 +103,7 @@ def dashboard(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def admin_logout(request):
     logout(request)
     return redirect('adminlogin')
@@ -86,62 +112,130 @@ def admin_logout(request):
 
 
 #add product
-from django.shortcuts import render, redirect
-from .models import Category, ColorVariant, Product, ProductImage, ProductVariant, Variant
 
 
 
 
 
-from django.shortcuts import render, redirect
-from .models import Product, Category, Variant, ColorVariant
 
 
 
+
+
+# def add_product(request):
+#     if request.method == 'POST':
+#         product_name = request.POST.get('product_name')
+#         category_id = request.POST.get('category')
+
+#         variant_ids = request.POST.getlist('variants')
+#         product_description = request.POST.get('product_description')
+#         product_code = request.POST.get('product_code')
+        
+#         # Validate and save the product details
+        
+#         # Retrieve the selected category and color objects
+#         try:
+#             # Retrieve the selected category and color objects
+#             category = Category.objects.get(id=category_id)
+
+#             # Create the product instance
+#             product = Product(
+#                 name=product_name,
+#                 category=category,
+#                 description=product_description,
+#                 product_code=product_code
+#             )
+#             product.save()
+
+#         colors = ColorVariant.objects.all() 
+#         for variant_id in variant_ids:
+#             variant = get_object_or_404(Variant, id=variant_id)
+#             product_variant = ProductVariant(product=product, variant=variant)
+#             product_variant.save()
+
+#          # # Redirect to a success page or perform additional actions
+
+#         request.session['last_product_key'] = product.pk
+
+#         context = {
+#         'product_id': product.pk,
+#         'selected_variants': variant_ids,
+#         'product_variants': product.productvariant_set.all(),
+#         'colors': colors,
+         
+#         }# Retrieve the associated product variants
+
+#         return render(request, 'adminpages/select_color.html', context)
+        
+#     else:
+#         # Retrieve the categories and colors from the database
+#         categories = Category.objects.all()
+#         colors = ColorVariant.objects.all()
+        
+#         context = {
+#             'categories': categories,
+#             'colors': colors,
+#         }
+
+#         return render(request, 'adminpages/add_product.html', context)
+
+
+
+
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def add_product(request):
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
         category_id = request.POST.get('category')
-
         variant_ids = request.POST.getlist('variants')
         product_description = request.POST.get('product_description')
         product_code = request.POST.get('product_code')
-        
-        # Validate and save the product details
-        
-        # Retrieve the selected category and color objects
-        category = Category.objects.get(id=category_id)
-        # Create the product instance
-        product = Product(
-            name=product_name,
-            category=category,
-            description=product_description,
-            product_code=product_code
-        )
-        product.save()
 
-        colors = ColorVariant.objects.all() 
-        for variant_id in variant_ids:
-            variant = get_object_or_404(Variant, id=variant_id)
-            product_variant = ProductVariant(product=product, variant=variant)
-            product_variant.save()
+        try:
+            # Retrieve the selected category and color objects
+            category = Category.objects.get(id=category_id)
 
-         # # Redirect to a success page or perform additional actions
+            # Create the product instance
+            product = Product(
+                name=product_name,
+                category=category,
+                description=product_description,
+                product_code=product_code
+            )
+            product.save()
 
-        request.session['last_product_key'] = product.pk
+            for variant_id in variant_ids:
+                variant = get_object_or_404(Variant, id=variant_id)
+                product_variant = ProductVariant(product=product, variant=variant)
+                product_variant.save()
 
-        context = {
-        'product_id': product.pk,
-        'selected_variants': variant_ids,
-        'product_variants': product.productvariant_set.all(),
-        'colors': colors,
-         
-        }# Retrieve the associated product variants
+            request.session['last_product_key'] = product.pk
 
-        return render(request, 'adminpages/select_color.html', context)
-        
+            colors = ColorVariant.objects.all()
+            context = {
+                'product_id': product.pk,
+                'selected_variants': variant_ids,
+                'product_variants': product.productvariant_set.all(),
+                'colors': colors,
+            }
+
+            # Redirect to a success page or perform additional actions
+            return render(request, 'adminpages/select_color.html', context)
+
+        except IntegrityError as e:
+            messages.error(request, "A product with the same name or product code already exists.")
+            categories = Category.objects.all()
+            colors = ColorVariant.objects.all()
+
+            context = {
+                'categories': categories,
+                'colors': colors,
+            }
+
+            return render(request, 'adminpages/add_product.html', context)
+
     else:
-        # Retrieve the categories and colors from the database
         categories = Category.objects.all()
         colors = ColorVariant.objects.all()
         
@@ -151,14 +245,15 @@ def add_product(request):
         }
 
         return render(request, 'adminpages/add_product.html', context)
+
     
 
 
 
 
-from django.shortcuts import render, redirect
-from .models import ProductVariantColor
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def save_product_variant_color(request):
     if request.method == 'POST':
         product_variant_id = request.POST.get('product_variant_id')
@@ -240,9 +335,8 @@ def get_color_checkboxes(request):
     else:
         return JsonResponse({"message": "Invalid request method"})
 
-
-
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def upload_images(request, product_variant_color_id):
     # Retrieve the product variant color object using the provided ID
     product_variant_color = get_object_or_404(ProductVariantColor, pk=product_variant_color_id)
@@ -265,7 +359,7 @@ def upload_images(request, product_variant_color_id):
 
     form = ImageForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        print("valid")
+        
         image = form.save(commit=False)
         image.product_variant_color_id = product_variant_color_id
         image.save()
@@ -283,10 +377,9 @@ def upload_images(request, product_variant_color_id):
     return render(request, 'adminpages/upload_images.html', context)
 
 
-from datetime import datetime, timedelta
-from django.db.models import Sum,Count
-from django.utils import timezone
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def revenue_chart_data(request):
     # Calculate the start and end dates for the past 7 days
     end_date = timezone.now().date()
@@ -352,7 +445,8 @@ def payment_chart_data(request):
     }
     return JsonResponse(data)
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def order_status_chart_data(request):
     order_status_data = Order.objects.values('status').annotate(count=Count('status')).order_by()
     labels = []
@@ -382,6 +476,8 @@ def order_status_chart_data(request):
     }
     return JsonResponse(data)
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def revenue_chart_line(request):
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=30*6)  # Past 6 months
@@ -410,10 +506,9 @@ def revenue_chart_line(request):
     return JsonResponse(data)
 
 
-from django.core.paginator import Paginator
 
-from datetime import datetime
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def sales_report_view(request):
     # Get the required data for the sales report
     total_orders = Order.get_total_orders()
@@ -447,77 +542,7 @@ def sales_report_view(request):
     return render(request, 'adminpages/salesreport.html', context)
 
 
-from wkhtmltopdf.views import PDFTemplateView
-
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.template.loader import get_template
 
 
-from django.template.loader import render_to_string
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.template.backends.utils import csrf_input_lazy, csrf_token_lazy
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import View
-from django.middleware.csrf import get_token
-from django.middleware.clickjacking import XFrameOptionsMiddleware
-from django.middleware.csrf import CsrfViewMiddleware
-
-
-class PDFView(View):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        get_token(request)
-        #request.META['HTTP_X_CSRFTOKEN'] = _get_new_csrf_token()        
-        return super(PDFView, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        # Get the required data for the sales report
-        total_orders = Order.get_total_orders()
-        total_revenue = Order.get_total_revenue()
-        total_revenue_month = Order.get_total_revenue_month()
-        total_revenue_week = Order.get_total_revenue_week()
-        total_revenue_day = Order.get_total_revenue_day()
-        total_orders_month = Order.get_orders_count_month()
-        total_orders_week = Order.get_orders_count_week()
-        total_orders_day = Order.get_orders_count_day()
-
-        # Get the report generated date and time
-        report_generated_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Pass the data to the template context
-        context = {
-            'total_orders': total_orders,
-            'total_revenue': total_revenue,
-            'total_revenue_month': total_revenue_month,
-            'total_revenue_week': total_revenue_week,
-            'total_revenue_day': total_revenue_day,
-            'total_orders_month': total_orders_month,
-            'total_orders_week': total_orders_week,
-            'total_orders_day': total_orders_day,
-            'report_generated_date': report_generated_date,
-        }
-
-        # Load the Django template
-        template = 'adminpages/salesreport.html'
-        template = get_template(template)
-
-        # Render the template with the context
-        rendered_template = template.render(context)
-
-
-        # Create a PDF response
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename="sales_report.pdf"'
-
-        # Render the PDF using PDFRenderer
-        from django.template import engines
-        pdf_renderer = engines['django'].engine.template_renderer_class()
-        pdf_content = pdf_renderer.render(rendered_template, context=context, request=request)
-        response.write(pdf_content)
-
-        return response
 
 

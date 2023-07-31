@@ -7,6 +7,9 @@ from userprofile.models import UserAddress
 
 
 def address(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     address = UserAddress.objects.filter(user=request.user)
     context = {
         'address':address
@@ -19,6 +22,9 @@ def address(request):
 
 
 def add_address(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST':
         # Get form data from the request
         first_name = request.POST.get('fname')
@@ -51,6 +57,9 @@ def add_address(request):
 
 
 def edit_address(request,address_id):
+     if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
      try:
         user_address = UserAddress.objects.get(id=address_id, user=request.user)
      except UserAddress.DoesNotExist:
@@ -88,6 +97,9 @@ def edit_address(request,address_id):
 
 
 def profile_view(request):
+     if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
      if request.method == 'POST':
         # Get the form data from the request
         first_name = request.POST.get('fname')
@@ -120,6 +132,9 @@ def profile_view(request):
 
 
 def user_address(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     user_add = request.user
     address = UserAddress.objects.filter(user = user_add)
     context = {
@@ -136,6 +151,9 @@ def delete_address(request):
      
 
 def edit_address_profile(request,address_id):
+     if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
      try:
         user_address = UserAddress.objects.get(id=address_id, user=request.user)
      except UserAddress.DoesNotExist:

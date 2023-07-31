@@ -91,7 +91,6 @@ body {
     const imageForm = document.getElementById('image-form')
     const confirmBtn = document.getElementById('confirm-btn')
     const input = document.getElementById('id_image')
-     
     const csrf = document.getElementsByName('csrfmiddlewaretoken')
      
     input.addEventListener('change', ()=>{
@@ -103,7 +102,6 @@ body {
         imageBox.innerHTML = `<img src="${url}" id="image" width="700px">`
         var $image = $('#image')
         
-     
         $image.cropper({
             aspectRatio: 1200 / 1486,
             viewMode: 1,

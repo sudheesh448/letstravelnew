@@ -1,76 +1,72 @@
-<!-- next_page.html -->
 {% extends 'adminpages/baseadmin.html' %}
 {% block content %}
   <div class="col-12 grid-margin">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">Select Your Colors</h4>
-        <p>Product ID: {{ product_id }}</p>
-        <p>Selected Variants: {{ selected_variants }}</p>
+        <h4 class="card-title text-white">Select Your Colors</h4>
+        <p class="text-white">Product ID: {{ product_id }}</p>
+        <p class="text-white">Selected Variants: {{ selected_variants }}</p>
 
-        
-          <table class="table">
-            <thead>
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="text-white">Product-Variant-ID</th>
+              <th class="text-white">Variant</th>
+              <th class="text-white">Color</th>
+              <th class="text-white">Price</th>
+              <th class="text-white">Stock</th>
+              <th class="text-white">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product_variant in product_variants %}
+            <form id="colorForm" method="post" action="{% url 'save_product_variant_color' %}">
+              {% csrf_token %}
               <tr>
-                <th>Product-Variant-ID</th>
-                <th>Variant</th>
-                <th>Color</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Actions</th>
+                <td class="text-white">{{ product_variant.pk }}</td>
+                <td class="text-white">{{ product_variant.variant.name }}</td>
+                <td>
+                  <select class="form-select color-select">
+                    <option value="" selected disabled>Select Color</option>
+                    {% for color_variant in colors %}
+                      <option value="{{ color_variant.id }}" style="background-color: {{ color_variant.color }};">{{ color_variant.color }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+                <td>
+                  <input type="number" class="form-control price-input" name="price" step="0.01" min="0">
+                </td>
+                <td>
+                  <input type="number" class="form-control stock-input" name="stock" min="0">
+                </td>
+                <td>
+                  <input type="hidden" name="product_variant_id" value="{{ product_variant.pk }}">
+                  <button type="submit" class="btn btn-primary save-btn">Save</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {% for product_variant in product_variants %}
-              <form id="colorForm" method="post" action="{% url 'save_product_variant_color' %}">
-                {% csrf_token %}
-                <tr>
-                  <td>{{ product_variant.pk }}</td>
-                  <td>{{ product_variant.variant.name }}</td>
+              {% for product_variant_color in product_variant.productvariantcolor_set.all %}
+              <tr>
+                <td class="text-white">
+                  ProductVariantColor ID: {{ product_variant_color.id }}
+                </td>
+                
+                <td class="text-white">
+                  Saved Color: {{ product_variant_color.color_variant.color }}
+                </td>
+                <td>
                   <td>
-                    <select class="form-select color-select" name="color" >
-                      <option value="" selected disabled>Select Color</option>
-                      {% for color_variant in colors %}
-                        <option value="{{ color_variant.id }}">{{ color_variant.color }}</option>
-                      {% endfor %}
-                    </select>
+                    <a href="#" class="btn btn-primary upload-btn" onclick="openPopup('{% url 'upload_images' product_variant_color.id %}')">Upload Image</a>
                   </td>
-                  <td>
-                    <input type="number" class="form-control price-input" name="price" step="0.01" min="0" >
-                  </td>
-                  <td>
-                    <input type="number" class="form-control stock-input" name="stock" min="0"  >
-                  </td>
-                  <td>
-                    <input type="hidden" name="product_variant_id" value="{{ product_variant.pk }}">
-                    <button type="submit" class="btn btn-primary save-btn" >Save</button>
-                  </td>
-                </tr>
-                {% for product_variant_color in product_variant.productvariantcolor_set.all %}
-                <tr>
-                  <td>
-                    ProductVariantColor ID: {{ product_variant_color.id }}
-                  </td>
-                  
-                  <td >
-                    Saved Color: {{ product_variant_color.color_variant.color }}
-                  </td>
-                  <td>
-                    <td>
-                      <a href="#" class="btn btn-primary upload-btn" onclick="openPopup('{% url 'upload_images' product_variant_color.id %}')">Upload Image</a>
-                    </td>
-                  </td>
-                </tr>
+                </td>
+              </tr>
               {% endfor %}
-              </form>
-              
-              
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="text-center mt-4">
-            <a href="{% url 'dashboard' %}" class="btn btn-primary">Finish Add Product</a>
-          </div>
+            </form>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="text-center mt-4">
+          <a href="{% url 'dashboard' %}" class="btn btn-primary text-white">Finish Add Product</a>
+        </div>
       </div>
     </div>
   </div>
@@ -79,7 +75,4 @@
       window.open(url, 'Upload Image', 'width=800,height=600');
     }
   </script>
-
-  
 {% endblock content %}
-

@@ -3,12 +3,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth.models import User
-
 from admin_side.models import Product
 from admin_side.models import PhoneNumber
+from django.contrib.auth.decorators import login_required,user_passes_test
 
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def customer_list(request):
     query = request.GET.get('query')
     users = User.objects.all()
@@ -27,7 +28,8 @@ def editproduct(request,product_id):
 def edit_product(request,product_id):
     pass
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -39,7 +41,8 @@ def delete_product(request, product_id):
 
     
     
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def revoke_product(request,product_id):
 
     product = get_object_or_404(Product, id=product_id)
@@ -52,7 +55,8 @@ def revoke_product(request,product_id):
 
 
 
-
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def viewcustomer(request, customer_id):
     user = get_object_or_404(User, id=customer_id)
     try:
@@ -65,6 +69,8 @@ def viewcustomer(request, customer_id):
     }
     return render(request, 'adminpages/view_user.html', context)
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def bancustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)
@@ -76,6 +82,8 @@ def bancustomer(request, customer_id):
     customer.save()
     return redirect('customerlist')
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def unbancustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)
@@ -87,6 +95,8 @@ def unbancustomer(request, customer_id):
     customer.save()
     return redirect('customerlist')
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def deletecustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)
@@ -98,6 +108,8 @@ def deletecustomer(request, customer_id):
     customer.save()
     return redirect('customerlist')
 
+@login_required(login_url='adminlogin')
+@user_passes_test(lambda user: user.is_superuser)
 def revokecustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)

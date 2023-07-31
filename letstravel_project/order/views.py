@@ -34,13 +34,18 @@ from .models import Wallet, Transaction
 
 
 def cod(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     address_id = request.GET.get('address_id')
     user_add = UserAddress.objects.get(id=address_id, user=request.user)
     carts = Cart.objects.get(user=request.user)
     items = CartItem.objects.filter(cart=carts)
     total_price = carts.total_price  
-    # if total_price == 0:
-    #     return HttpResponse('Cart is empty.')
+    if total_price == 0:
+        messages.error(request, "Your cart is empty. Please add items to your cart before placing an order.")
+        return redirect('shoppingcart')
+        
 
     order = Order.objects.create(
     user=request.user,
@@ -82,38 +87,55 @@ def cod(request):
     # return render(request, "order/checkout.html", {"user_add": user_add, "carts": carts})
     return render(request, "order/checkout.html", {"user_add": user_add, "carts": carts})
 
-def place_order(request, add_user_id):    
-    order = Order.objects.filter(user=request.user).latest('id')
-    order_items = order.orderitem_set.all()
-    context = {
-        'order': order,
-        'order_items': order_items
-    }
-    return render(request, 'order/prepaysuccess.html', context)
+def place_order(request, add_user_id):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
+    else:   
+         order = Order.objects.filter(user=request.user).latest('id')
+         order_items = order.orderitem_set.all()
+         context = {
+             'order': order,
+             'order_items': order_items
+         }
+         return render(request, 'order/prepaysuccess.html', context)
 
 def ordertable(request):
-    order = Order.objects.filter(user=request.user).order_by('-order_date')
-    paginator = Paginator(order, 10)  # Set the number of orders to display per page
     
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
+    else:
+        order = Order.objects.filter(user=request.user).order_by('-order_date')
+        paginator = Paginator(order, 10)  # Set the number of orders to display per page
     
-    context = {
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+    
+        context = {
         'page_obj': page_obj
-    }
-    return render(request, 'order/ordertable.html', context)
+         }
+        return render(request, 'order/ordertable.html', context)
 
 def order_view(request,order_id):
-    orderss = Order.objects.get(id=order_id)
-    view_order = OrderItem.objects.filter(order=orderss)
-    context ={
-        'view_order':view_order
-    }
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
+    else:
+         orderss = Order.objects.get(id=order_id)
+         view_order = OrderItem.objects.filter(order=orderss)
+         context ={
+             'view_order':view_order
+         }
     return render(request,"order/order_view.html",context)
 
 #-----------------------------Cancel the order from user side------------------------------------------------
 
 def cancel_orders(request, order_id):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
+    
     order = get_object_or_404(Order, id=order_id)
     items = OrderItem.objects.filter(order=order)
     
@@ -173,14 +195,21 @@ def cancel_orders(request, order_id):
                     
         return redirect('ordertable')
 
-def pay_now(request):  
+def pay_now(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')  
     address_id = request.GET.get('address_id')
-    print(address_id)
+    
     user_add = UserAddress.objects.get(id=address_id, user=request.user)
-    print(user_add)
+    
     carts = Cart.objects.get(user=request.user)
     items = CartItem.objects.filter(cart=carts)
-    total_price = carts.total_price     
+    total_price = carts.total_price
+
+    if total_price == 0:
+        messages.error(request, "Your cart is empty. Please add items to your cart before placing an order.")
+        return redirect('shoppingcart')     
     context ={
         'address_id':address_id,
         'user_add': user_add,
@@ -191,6 +220,9 @@ def pay_now(request):
     return render(request,"order/paynow.html",context)
 
 def online_payment_order(request,user_add_id):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST':
         payment_id = request.POST.getlist('payment_id')[0]
         orderId = request.POST.getlist('orderId')[0]
@@ -258,6 +290,9 @@ def online_payment_order(request,user_add_id):
 
 
 def initiate_payment(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST':
         # Retrieve the total price and other details from the backend
         cartss = Cart.objects.get(user=request.user)
@@ -279,6 +314,9 @@ def initiate_payment(request):
     return JsonResponse({'error': 'Invalid request method'})
 
 def order_success(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     payment_id = request.GET.get('payment_id')
 
     # Retrieve the Order and OrderItem objects based on the payment_id
@@ -301,6 +339,9 @@ def order_success(request):
 
 
 def pay_using_wallet(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     if request.method == 'POST':
         address_id = request.POST.get('address_id')
         carts = Cart.objects.get(user=request.user)
@@ -374,14 +415,17 @@ def pay_using_wallet(request):
                 # For example, if there is an error during transaction creation, you may need to revert the wallet balance
                 # and handle the exception appropriately
                 messages.error(request, 'Payment failed! Please try again later.')
-                return redirect('ordertable')  # Replace 'ordertable' with the URL name for your order table page
+                return redirect('shoppingcart')  # Replace 'ordertable' with the URL name for your order table page
         else:
             # Insufficient balance in the wallet
             messages.error(request, 'Payment failed! Insufficient balance in your wallet. Add money to wallet. or select another payment option')
-            return redirect('ordertable')  # Replace 'ordertable' with the URL name for your order table page
+            return redirect('shoppingcart')  # Replace 'ordertable' with the URL name for your order table page
 
 
 def view_wallets(request):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     wallets = Wallet.objects.all()
     return render(request, 'adminpages/viewwallet.html', {'wallets': wallets})
 # views.py
@@ -393,6 +437,9 @@ from django.shortcuts import render
 from .models import Order
 
 def generate_invoice(request, order_id):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
     order = Order.objects.get(pk=order_id)
 
     # Calculate the total for each order item
