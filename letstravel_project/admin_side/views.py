@@ -265,6 +265,7 @@ def save_product_variant_color(request):
         product = get_object_or_404(Product, id=product_id)
         category_id = product.category.id  # Get the category ID
         category = get_object_or_404(Category, id=category_id)
+        color_variant = get_object_or_404(ColorVariant, id=color_variant_id)
         
         # Create a new ProductVariantColor instance
         try:
@@ -277,7 +278,7 @@ def save_product_variant_color(request):
             # If the combination does not exist, create a new ProductVariantColor instance
             product_variant_color = ProductVariantColor.objects.create(
                 product_variant_id=product_variant_id,
-                color_variant_id=color_variant_id,
+                color_variant=color_variant,
                 price=price,
                 stock=stock,
                 category=category,
