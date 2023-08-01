@@ -401,52 +401,7 @@
 
 	</script>
 	
-	<script>
-		$(document).ready(function() {
-		  $('#add-to-cart-form').submit(function(e) {
-			e.preventDefault();
-	  
-			// Get the CSRF token value
-			var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
-			
-	  
-			// Get the product variant color ID
-			var productVariantColorId = $('input[name="product_variant_color_id"]').val();
-			
-	  
-			// Prepare the data to send in the request
-			var formData = {
-			  'csrfmiddlewaretoken': csrfToken,
-			  'product_variant_color_id': productVariantColorId
-			  
-			  // Add other input fields and their values as needed
-			};
-			
-
-			
-	  
-			// Make the AJAX request to add the item to the cart
-			$.ajax({
-			  url: '/addtocart/', // Update with the URL for your add_to_cart view
-			  method: 'POST',
-			  data: formData,
-			  success: function(response) {
-				// Handle the success response
-				console.log(response);
-				$('#message').text(response.message).addClass('the product successfully added to cart').removeClass('error');
-			  },
-			  error: function(xhr, status, error) {
-				// Handle the error response
-				
-				$('#message').text(response.message).addClass('error').removeClass('success');
-			  }
-			});
-		  });
-		});
-	  </script>
-	  
-		
-
+	
 	
 	<script>
 		$(".js-select2").each(function(){
@@ -459,7 +414,6 @@
 
 <!--===============================================================================================-->
 	
-
 	<script>
 		$('.js-addwish-b2, .js-addwish-detail').on('click', function(e){
 			e.preventDefault();
