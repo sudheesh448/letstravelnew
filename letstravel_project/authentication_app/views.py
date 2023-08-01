@@ -335,7 +335,7 @@ def forgotpassword(request):
         username = request.POST.get('username')
         try:
             user = User.objects.get(username=username)
-        except user.DoesNotExist:
+        except User.DoesNotExist:
             messages.error(request, 'Email not found in our records.')
             return redirect('forgotpassword')
 
