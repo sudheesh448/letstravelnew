@@ -45,9 +45,10 @@ def register(request):
                 messages.error(request,"Username must be Alpha-Numeric")
                 return redirect('register')
         
-            if not PhoneNumber.objects.filter(referral_code=referral_code).exists():
-                messages.error(request, "Invalid referral code..!!")
-                return redirect('register')
+            if referral_code:
+                if not PhoneNumber.objects.filter(referral_code=referral_code).exists():
+                    messages.error(request, "Invalid referral code..!!")
+                    return redirect('register')
         
             otp = get_random_string(length=6, allowed_chars='1234567890')
             expiry = datetime.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
