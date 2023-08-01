@@ -335,9 +335,9 @@ def forgotpassword(request):
         username = request.POST.get('username')
         try:
             user = User.objects.get(username=username)
-        except User.DoesNotExist:
+        except user.DoesNotExist:
             messages.error(request, 'Email not found in our records.')
-            return redirect('forgot_password')
+            return redirect('forgotpassword')
 
         # Generate a 6-digit OTP and save it in the user's session along with its expiry time
         otp = get_random_string(length=6, allowed_chars='1234567890')
