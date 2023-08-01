@@ -8,19 +8,22 @@ from admin_side.models import PhoneNumber
 from django.contrib.auth.decorators import login_required,user_passes_test
 
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def customer_list(request):
-    query = request.GET.get('query')
-    users = User.objects.all()
-    
-    if query:
-        users = users.filter(Q(username__icontains=query) | Q(email__icontains=query))
-    
-    paginator = Paginator(users, 10)  # Show 10 customers per page
-    page_number = request.GET.get('page')
-    page_users = paginator.get_page(page_number)
-    return render(request, 'adminpages/customerlist.html', {'users': page_users, 'query': query})
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
+                query = request.GET.get('query')
+                users = User.objects.all()
+                
+                if query:
+                    users = users.filter(Q(username__icontains=query) | Q(email__icontains=query))
+                
+                paginator = Paginator(users, 10)  # Show 10 customers per page
+                page_number = request.GET.get('page')
+                page_users = paginator.get_page(page_number)
+                return render(request, 'adminpages/customerlist.html', {'users': page_users, 'query': query})
+    else:
+            return redirect('adminlogin')
 
 def editproduct(request,product_id):
     return render(request, 'adminpages/view_edit_products.html')
@@ -28,8 +31,7 @@ def editproduct(request,product_id):
 def edit_product(request,product_id):
     pass
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -41,8 +43,7 @@ def delete_product(request, product_id):
 
     
     
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def revoke_product(request,product_id):
 
     product = get_object_or_404(Product, id=product_id)
@@ -55,22 +56,24 @@ def revoke_product(request,product_id):
 
 
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
-def viewcustomer(request, customer_id):
-    user = get_object_or_404(User, id=customer_id)
-    try:
-        phone_number = PhoneNumber.objects.get(user=user)
-    except PhoneNumber.DoesNotExist:
-        phone_number = None
-    context = {
-        'user': user,
-        'phone_number': phone_number,
-    }
-    return render(request, 'adminpages/view_user.html', context)
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+def viewcustomer(request, customer_id):
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
+                user = get_object_or_404(User, id=customer_id)
+                try:
+                    phone_number = PhoneNumber.objects.get(user=user)
+                except PhoneNumber.DoesNotExist:
+                    phone_number = None
+                context = {
+                    'user': user,
+                    'phone_number': phone_number,
+                }
+                return render(request, 'adminpages/view_user.html', context)
+    else:
+            return redirect('adminlogin')
+
+
 def bancustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)
@@ -82,8 +85,7 @@ def bancustomer(request, customer_id):
     customer.save()
     return redirect('customerlist')
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def unbancustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)
@@ -95,8 +97,7 @@ def unbancustomer(request, customer_id):
     customer.save()
     return redirect('customerlist')
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def deletecustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)
@@ -108,8 +109,7 @@ def deletecustomer(request, customer_id):
     customer.save()
     return redirect('customerlist')
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def revokecustomer(request, customer_id):
     # Retrieve the customer instance
     customer = User.objects.get(id=customer_id)

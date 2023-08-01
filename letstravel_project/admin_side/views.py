@@ -65,271 +65,205 @@ def adminlogin(request):
         return render(request,'adminpages/login.html') 
 
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='adminlogin')
-@never_cache
+
+
 def dashboard(request):
-    if request.user.is_superuser:
-        users_data=User.objects.all()
-        total_orders = Order.get_total_orders()
-        total_orders_week=Order.get_orders_count_week()
-        total_orders_month=Order.get_orders_count_month()
-        total_orders_day=Order.get_orders_count_day()
-        total_revenue = Order.get_total_revenue()
-        total_revenue_month=Order.get_total_revenue_month()
-        total_revenue_week=Order.get_total_revenue_week()
-        total_revenue_day=Order.get_total_revenue_day()
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
+                users_data=User.objects.all()
+                total_orders = Order.get_total_orders()
+                total_orders_week=Order.get_orders_count_week()
+                total_orders_month=Order.get_orders_count_month()
+                total_orders_day=Order.get_orders_count_day()
+                total_revenue = Order.get_total_revenue()
+                total_revenue_month=Order.get_total_revenue_month()
+                total_revenue_week=Order.get_total_revenue_week()
+                total_revenue_day=Order.get_total_revenue_day()
 
-        if 'last_product_key' in request.session:
-            del request.session['last_product_key']
-            request.session.flush()
+                if 'last_product_key' in request.session:
+                    del request.session['last_product_key']
+                    
 
-        context={ 
-            'users_data':users_data,
-            'total_orders':total_orders,
-            'total_orders_week':total_orders_week,
-            'total_orders_month': total_orders_month,
-            'total_orders_day':total_orders_day,
-            'total_revenue':total_revenue,
-            'total_revenue_month':total_revenue_month,
-            'total_revenue_week':total_revenue_week,
-            'total_revenue_day':total_revenue_day
-        }
-        return render(request,'adminpages/dashboard.html',context)
+                context={ 
+                    'users_data':users_data,
+                    'total_orders':total_orders,
+                    'total_orders_week':total_orders_week,
+                    'total_orders_month': total_orders_month,
+                    'total_orders_day':total_orders_day,
+                    'total_revenue':total_revenue,
+                    'total_revenue_month':total_revenue_month,
+                    'total_revenue_week':total_revenue_week,
+                    'total_revenue_day':total_revenue_day
+                }
+                return render(request,'adminpages/dashboard.html',context)
     else:
-        return redirect('home')
+        return redirect('adminlogin')
     
 
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
 def admin_logout(request):
-    logout(request)
-    return redirect('adminlogin')
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
+                logout(request)
+                return redirect('adminlogin')
 
 
 
-
-#add product
-
-
-
-
-
-
-
-
-
-
-# def add_product(request):
-#     if request.method == 'POST':
-#         product_name = request.POST.get('product_name')
-#         category_id = request.POST.get('category')
-
-#         variant_ids = request.POST.getlist('variants')
-#         product_description = request.POST.get('product_description')
-#         product_code = request.POST.get('product_code')
-        
-#         # Validate and save the product details
-        
-#         # Retrieve the selected category and color objects
-#         try:
-#             # Retrieve the selected category and color objects
-#             category = Category.objects.get(id=category_id)
-
-#             # Create the product instance
-#             product = Product(
-#                 name=product_name,
-#                 category=category,
-#                 description=product_description,
-#                 product_code=product_code
-#             )
-#             product.save()
-
-#         colors = ColorVariant.objects.all() 
-#         for variant_id in variant_ids:
-#             variant = get_object_or_404(Variant, id=variant_id)
-#             product_variant = ProductVariant(product=product, variant=variant)
-#             product_variant.save()
-
-#          # # Redirect to a success page or perform additional actions
-
-#         request.session['last_product_key'] = product.pk
-
-#         context = {
-#         'product_id': product.pk,
-#         'selected_variants': variant_ids,
-#         'product_variants': product.productvariant_set.all(),
-#         'colors': colors,
-         
-#         }# Retrieve the associated product variants
-
-#         return render(request, 'adminpages/select_color.html', context)
-        
-#     else:
-#         # Retrieve the categories and colors from the database
-#         categories = Category.objects.all()
-#         colors = ColorVariant.objects.all()
-        
-#         context = {
-#             'categories': categories,
-#             'colors': colors,
-#         }
-
-#         return render(request, 'adminpages/add_product.html', context)
-
-
-
-
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
 def add_product(request):
-    if request.method == 'POST':
-        product_name = request.POST.get('product_name')
-        category_id = request.POST.get('category')
-        variant_ids = request.POST.getlist('variants')
-        product_description = request.POST.get('product_description')
-        product_code = request.POST.get('product_code')
 
-        try:
-            # Retrieve the selected category and color objects
-            category = Category.objects.get(id=category_id)
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
+                    if request.method == 'POST':
+                        product_name = request.POST.get('product_name')
+                        category_id = request.POST.get('category')
+                        variant_ids = request.POST.getlist('variants')
+                        product_description = request.POST.get('product_description')
+                        product_code = request.POST.get('product_code')
 
-            # Create the product instance
-            product = Product(
-                name=product_name,
-                category=category,
-                description=product_description,
-                product_code=product_code
-            )
-            product.save()
+                        try:
+                            # Retrieve the selected category and color objects
+                            category = Category.objects.get(id=category_id)
 
-            for variant_id in variant_ids:
-                variant = get_object_or_404(Variant, id=variant_id)
-                product_variant = ProductVariant(product=product, variant=variant)
-                product_variant.save()
+                            # Create the product instance
+                            product = Product(
+                                name=product_name,
+                                category=category,
+                                description=product_description,
+                                product_code=product_code
+                            )
+                            product.save()
 
-            request.session['last_product_key'] = product.pk
+                            for variant_id in variant_ids:
+                                variant = get_object_or_404(Variant, id=variant_id)
+                                product_variant = ProductVariant(product=product, variant=variant)
+                                product_variant.save()
 
-            colors = ColorVariant.objects.all()
-            context = {
-                'product_id': product.pk,
-                'selected_variants': variant_ids,
-                'product_variants': product.productvariant_set.all(),
-                'colors': colors,
-            }
+                            request.session['last_product_key'] = product.pk
 
-            # Redirect to a success page or perform additional actions
-            return render(request, 'adminpages/select_color.html', context)
+                            colors = ColorVariant.objects.all()
+                            context = {
+                                'product_id': product.pk,
+                                'selected_variants': variant_ids,
+                                'product_variants': product.productvariant_set.all(),
+                                'colors': colors,
+                            }
 
-        except IntegrityError as e:
-            messages.error(request, "A product with the same name or product code already exists.")
-            categories = Category.objects.all()
-            colors = ColorVariant.objects.all()
+                            # Redirect to a success page or perform additional actions
+                            return render(request, 'adminpages/select_color.html', context)
 
-            context = {
-                'categories': categories,
-                'colors': colors,
-            }
+                        except IntegrityError as e:
+                            messages.error(request, "A product with the same name or product code already exists.")
+                            categories = Category.objects.all()
+                            colors = ColorVariant.objects.all()
 
-            return render(request, 'adminpages/add_product.html', context)
+                            context = {
+                                'categories': categories,
+                                'colors': colors,
+                            }
 
+                            return render(request, 'adminpages/add_product.html', context)
+
+                    else:
+                        categories = Category.objects.all()
+                        colors = ColorVariant.objects.all()
+                        
+                        context = {
+                            'categories': categories,
+                            'colors': colors,
+                        }
+
+                        return render(request, 'adminpages/add_product.html', context)
     else:
-        categories = Category.objects.all()
-        colors = ColorVariant.objects.all()
+            return redirect('adminlogin')
         
-        context = {
-            'categories': categories,
-            'colors': colors,
-        }
-
-        return render(request, 'adminpages/add_product.html', context)
-
     
 
 
 
 
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def save_product_variant_color(request):
-    if request.method == 'POST':
-        product_variant_id = request.POST.get('product_variant_id')
-        color_variant_id = request.POST.get('color')
-        price = request.POST.get('price')
-        stock = request.POST.get('stock')
-        product_id = request.session['last_product_key']
-        product_variants = ProductVariant.objects.filter(product=product_id)
-        product = get_object_or_404(Product, id=product_id)
-        category_id = product.category.id  # Get the category ID
-        category = get_object_or_404(Category, id=category_id)
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
+                if request.method == 'POST':
+                    product_variant_id = request.POST.get('product_variant_id')
+                    color_variant_id = request.POST.get('color')
+                    price = request.POST.get('price')
+                    stock = request.POST.get('stock')
+                    product_id = request.session['last_product_key']
+                    product_variants = ProductVariant.objects.filter(product=product_id)
+                    product = get_object_or_404(Product, id=product_id)
+                    category_id = product.category.id  # Get the category ID
+                    category = get_object_or_404(Category, id=category_id)
 
-        product_variant = get_object_or_404(ProductVariant, id=product_variant_id)
-        color_variant = get_object_or_404(ColorVariant, id=color_variant_id)
-        
+                    product_variant = get_object_or_404(ProductVariant, id=product_variant_id)
+                    color_variant = get_object_or_404(ColorVariant, id=color_variant_id)
+                    
 
-        try:
-            product_variant_color = ProductVariantColor.objects.get(
-                product_variant=product_variant,
-                color_variant=color_variant
-            )
-        except ProductVariantColor.DoesNotExist:# Create a new ProductVariantColor instance
-             product_variant_color = ProductVariantColor(
-                 product_variant=product_variant,
-                 color_variant=color_variant,
-                 price=price,
-                 stock=stock,
-                 category=category,
-                 product=product
-             )
-             product_variant_color.save()
+                    try:
+                        product_variant_color = ProductVariantColor.objects.get(
+                            product_variant=product_variant,
+                            color_variant=color_variant
+                        )
+                    except ProductVariantColor.DoesNotExist:# Create a new ProductVariantColor instance
+                        product_variant_color = ProductVariantColor(
+                            product_variant=product_variant,
+                            color_variant=color_variant,
+                            price=price,
+                            stock=stock,
+                            category=category,
+                            product=product
+                        )
+                        product_variant_color.save()
 
 
 
-        def get_product_id(request):
-            product_variant_id = request.POST.get('product_variant_id')
-            product_variant = ProductVariant.objects.get(id=product_variant_id)
-            return product_variant.product_id
+                    def get_product_id(request):
+                        product_variant_id = request.POST.get('product_variant_id')
+                        product_variant = ProductVariant.objects.get(id=product_variant_id)
+                        return product_variant.product_id
 
-        def get_associated_variants(request):
-            product_variant_id = request.POST.get('product_variant_id')
-            product_variant = ProductVariant.objects.get(id=product_variant_id)
-            return product_variant.product.variant_set.all()
-        
-        product_id = request.session['last_product_key']
-        product_variants = ProductVariant.objects.filter(product=product_id)
-        product = get_object_or_404(Product, id=product_id)
-        category_id = product.category.id  # Get the category ID
-        category = get_object_or_404(Category, id=category_id)
-        colors = ColorVariant.objects.all()
-        saved_color_ids = ProductVariantColor.objects.filter(product_variant__product=product_id).values_list('color_variant_id', flat=True)
-        product_variant_colors = ProductVariantColor.objects.filter(product_variant__product=product_id)
+                    def get_associated_variants(request):
+                        product_variant_id = request.POST.get('product_variant_id')
+                        product_variant = ProductVariant.objects.get(id=product_variant_id)
+                        return product_variant.product.variant_set.all()
+                    
+                    product_id = request.session['last_product_key']
+                    product_variants = ProductVariant.objects.filter(product=product_id)
+                    product = get_object_or_404(Product, id=product_id)
+                    category_id = product.category.id  # Get the category ID
+                    category = get_object_or_404(Category, id=category_id)
+                    colors = ColorVariant.objects.all()
+                    saved_color_ids = ProductVariantColor.objects.filter(product_variant__product=product_id).values_list('color_variant_id', flat=True)
+                    product_variant_colors = ProductVariantColor.objects.filter(product_variant__product=product_id)
 
-        context = {
-        'product_id': product_id,
-        'product_variants': product_variants,
-        'colors': colors,
-        'saved_color_ids': saved_color_ids,
-        'product_variant_colors':product_variant_colors,
-        'category_id': category_id,  # Pass the category ID to the context
-        'category': category,
-        }
-        # Redirect to a success page or perform any desired action
-        return render(request, 'adminpages/select_color.html', context)
+                    context = {
+                    'product_id': product_id,
+                    'product_variants': product_variants,
+                    'colors': colors,
+                    'saved_color_ids': saved_color_ids,
+                    'product_variant_colors':product_variant_colors,
+                    'category_id': category_id,  # Pass the category ID to the context
+                    'category': category,
+                    }
+                    # Redirect to a success page or perform any desired action
+                    return render(request, 'adminpages/select_color.html', context)
+                else:
+                    context = {
+                    'product_id': product_id,
+                    'product_variants': product_variants,
+                    'colors': colors,
+                    'saved_color_ids': saved_color_ids,
+                    'product_variant_colors':product_variant_colors,
+                    'category_id': category_id,  # Pass the category ID to the context
+                    'category': category,
+                    }
+                    # Handle the case when the request method is not POST
+                    return render(request, 'adminpages/select_color.html', context)
     else:
-        context = {
-        'product_id': product_id,
-        'product_variants': product_variants,
-        'colors': colors,
-        'saved_color_ids': saved_color_ids,
-        'product_variant_colors':product_variant_colors,
-        'category_id': category_id,  # Pass the category ID to the context
-        'category': category,
-        }
-        # Handle the case when the request method is not POST
-        return render(request, 'adminpages/select_color.html', context)
+            return redirect('adminlogin')            
+    
 from django.http import JsonResponse
 def get_color_checkboxes(request):
     if request.method == "GET":
@@ -338,51 +272,54 @@ def get_color_checkboxes(request):
     else:
         return JsonResponse({"message": "Invalid request method"})
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
+
 def upload_images(request, product_variant_color_id):
+    if request.user.is_authenticated:
+            if request.user.is_superuser:
     # Retrieve the product variant color object using the provided ID
-    product_variant_color = get_object_or_404(ProductVariantColor, pk=product_variant_color_id)
+                product_variant_color = get_object_or_404(ProductVariantColor, pk=product_variant_color_id)
 
-    # Retrieve the associated product variant object
-    product_variant = product_variant_color.product_variant
+                # Retrieve the associated product variant object
+                product_variant = product_variant_color.product_variant
 
-    # Retrieve the product name using the product variant
-    product_name = product_variant.product.name
+                # Retrieve the product name using the product variant
+                product_name = product_variant.product.name
 
-    # Retrieve the variant name from the product variant
-    variant_name = product_variant.variant.name
+                # Retrieve the variant name from the product variant
+                variant_name = product_variant.variant.name
 
-    # Retrieve the color name from the color variant
-    color_name = product_variant_color.color_variant.color
+                # Retrieve the color name from the color variant
+                color_name = product_variant_color.color_variant.color
 
-    # Rest of your code
-    uploaded_images = ProductImage.objects.filter(product_variant_color_id=product_variant_color_id)
-    product_id = request.session['last_product_key']
+                # Rest of your code
+                uploaded_images = ProductImage.objects.filter(product_variant_color_id=product_variant_color_id)
+                product_id = request.session['last_product_key']
 
-    form = ImageForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        
-        image = form.save(commit=False)
-        image.product_variant_color_id = product_variant_color_id
-        image.save()
-        return JsonResponse({'message': 'Image uploaded successfully.'})
+                form = ImageForm(request.POST or None, request.FILES or None)
+                if form.is_valid():
+                    
+                    image = form.save(commit=False)
+                    image.product_variant_color_id = product_variant_color_id
+                    image.save()
+                    return JsonResponse({'message': 'Image uploaded successfully.'})
 
-    context = {
-        'form': form,
-        'images': uploaded_images,
-        'product_name': product_name,
-        'product_id': product_id,
-        'variant_name': variant_name,
-        'color_name': color_name
-    }
-        
-    return render(request, 'adminpages/upload_images.html', context)
+                context = {
+                    'form': form,
+                    'images': uploaded_images,
+                    'product_name': product_name,
+                    'product_id': product_id,
+                    'variant_name': variant_name,
+                    'color_name': color_name
+                }
+                    
+                return render(request, 'adminpages/upload_images.html', context)
+    else:
+            return redirect('adminlogin')   
 
 
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def revenue_chart_data(request):
     # Calculate the start and end dates for the past 7 days
     end_date = timezone.now().date()
@@ -448,8 +385,7 @@ def payment_chart_data(request):
     }
     return JsonResponse(data)
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def order_status_chart_data(request):
     order_status_data = Order.objects.values('status').annotate(count=Count('status')).order_by()
     labels = []
@@ -479,8 +415,7 @@ def order_status_chart_data(request):
     }
     return JsonResponse(data)
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def revenue_chart_line(request):
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=30*6)  # Past 6 months
@@ -510,8 +445,7 @@ def revenue_chart_line(request):
 
 
 
-@login_required(login_url='adminlogin')
-@user_passes_test(lambda user: user.is_superuser)
+
 def sales_report_view(request):
     # Get the required data for the sales report
     total_orders = Order.get_total_orders()
