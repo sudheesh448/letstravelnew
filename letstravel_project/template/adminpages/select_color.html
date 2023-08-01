@@ -25,13 +25,15 @@
               <tr>
                 <td class="text-white">{{ product_variant.pk }}</td>
                 <td class="text-white">{{ product_variant.variant.name }}</td>
-                <td>
-                  <select class="form-select color-select">
-                    <option value="" selected disabled>Select Color</option>
-                    {% for color_variant in colors %}
-                      <option value="{{ color_variant.id }}" style="background-color: {{ color_variant.color }};">{{ color_variant.color }}</option>
-                    {% endfor %}
-                  </select>
+                
+                  <td>
+                    <select class="form-select color-select" name="color" >
+                      <option value="">Select Color</option>
+                      {% for color_variant in colors %}
+                        <option value="{{ color_variant.id }}">{{ color_variant.color }}</option>
+                      {% endfor %}
+                    </select>
+                
                 </td>
                 <td>
                   <input type="number" class="form-control price-input" name="price" step="0.01" min="0">
