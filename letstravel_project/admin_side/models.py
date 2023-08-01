@@ -138,7 +138,7 @@ class ProductVariant(models.Model):
 class ProductVariantColor(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     color_variant = models.ForeignKey(ColorVariant, on_delete=models.CASCADE)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=300, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     offer_price = models.DecimalField(max_digits=10, decimal_places=2,null=True)
     stock = models.PositiveIntegerField(default=0)
