@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render
 # Create your views here.
 from django.shortcuts import render, redirect
@@ -96,19 +97,25 @@ def create_category_offer(request):
         category_id = request.POST.get('category')
         offer_description = request.POST.get('offer_description')
         discount_percentage = request.POST.get('discount_percentage')
+        expiry_date = request.POST.get('expiry')
 
-        if category_id  and discount_percentage:
+
+
+        if category_id and discount_percentage and expiry_date:
             category = Category.objects.get(pk=category_id)
             category_offer = CategoryOffer.objects.create(
                 category=category,
                 offer_description=offer_description,
                 discount_percentage=float(discount_percentage),
+                 expiry_date=expiry_date,
             )
             # You can add more logic here if needed, such as setting success messages or redirecting to a success page.
-            return HttpResponse(f"Category Offer created: {category_offer}")
+            messages.success(request, f"Category Offer created: {category_offer}")
+            return redirect('view_category_offers')
         else:
             # Handle form validation errors here, such as displaying error messages or redirecting back to the form page.
-            return HttpResponse("Please fill in all required fields.")
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('create_category_offer')
     else:
         # You can add any initial data or context here if needed.
         context = {

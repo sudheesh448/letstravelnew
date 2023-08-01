@@ -6,6 +6,13 @@
     <div class="card">
       <div class="card-body">
         <h1 class="card-title">Add Category Offer</h1>
+        <div class="alert alert-success" role="alert">
+          {% if messages %}
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+          {% endif %}
+        </div>
         <form method="post" class="my-form" action="create_category_offer">
           {% csrf_token %}
           <div class="row">
