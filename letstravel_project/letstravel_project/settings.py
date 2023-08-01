@@ -26,12 +26,13 @@ SECRET_KEY = 'django-insecure-@r)=4rp-o7!kgx-j(=8+^=44ah848g=c0x8)w+1-+s5jf%n+l2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['13.211.144.189', '0.0.0.0' ,'localhost']
+CSRF_TRUSTED_ORIGINS = ['http://13.211.144.189']
 
 
 # Application definition
 
-INSTALLED_APPS = [ 
+INSTALLED_APPS = [
     'wishlist',
     'discount',
     'userprofile',
@@ -49,17 +50,34 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    
+
     'django.middleware.security.SecurityMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 ]
 
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://13.211.144.189',
+
+]
+
+
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+CORS_ALLOW_CREDENTIALS = True
+ROOT_URLCONF = 'letstravel_project.urls'
+
+CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'letstravel_project.urls'
 
 TEMPLATES = [
@@ -101,7 +119,7 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'djan-go.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -157,4 +175,8 @@ RAZOR_KEY_SECRET = 'EVcF6xirN3s6SaZLXjhw8EvU'
 TWILIO_ACCOUNT_SID = 'ACeb88ad4d53d602ff771d112e350516b5'
 TWILIO_AUTH_TOKEN = '90a1b2d5aa604e61ebdb6be7cfc18c9c'
 TWILIO_PHONE_NUMBER = +13257700869
+
+
+
+
 
