@@ -35,12 +35,16 @@ def addtocart(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def shoppingcart(request):
-    if  request.user.is_authenticated:
-        cart = Cart.objects.get(user=request.user)
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        # If the cart was just created, you may want to set some default values
+        if created:
+            cart.save()  # Save the newly created cart to the database
         cart_items = cart.items.order_by('price')  # Order the items by price
     else:
         messages.warning(request, 'Sign in required to continue.')
         return redirect('signin')
+
     
 
     # Get the applied coupons for the user with the condition applied=True and used=False
