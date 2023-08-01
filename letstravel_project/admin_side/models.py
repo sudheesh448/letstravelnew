@@ -110,7 +110,7 @@ class Product(models.Model):
     product_code = models.CharField(max_length=50, unique=True, blank=False)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=1000,unique=True)
     product_deleted = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     variants = models.ManyToManyField(Variant, through='ProductVariant')
@@ -138,7 +138,7 @@ class ProductVariant(models.Model):
 class ProductVariantColor(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     color_variant = models.ForeignKey(ColorVariant, on_delete=models.CASCADE)
-    slug = models.SlugField(max_length=300, unique=True)
+    slug = models.SlugField(max_length=1000, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     offer_price = models.DecimalField(max_digits=10, decimal_places=2,null=True)
     stock = models.PositiveIntegerField(default=0)
