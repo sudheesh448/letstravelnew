@@ -28,7 +28,7 @@ def home(request, category_id=None):
     )
     
     # Number of items per page
-    items_per_page = 10
+    items_per_page = 12
     # Create a Paginator object
     paginator = Paginator(products, items_per_page)
     # Get the current page number from the request's GET parameters
@@ -154,7 +154,7 @@ def shop(request, query=None,category_id=None):
 
     
     # Number of items per page
-    items_per_page = 10
+    items_per_page = 12
     # Create a Paginator object
     paginator = Paginator(products, items_per_page)
     # Get the current page number from the request's GET parameters

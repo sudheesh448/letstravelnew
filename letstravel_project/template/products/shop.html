@@ -333,30 +333,31 @@
 
         <!-- Pagination -->
         <!-- Pagination -->
-        <div class="flex-w flex-c-m p-t-45">
-            <!-- Previous Page -->
-            {% if products.has_previous %}
-            <a href="?page={{ products.previous_page_number }}" class="flex-c-m how-pagination1 trans-04 m-all-7">
-                <i class="zmdi zmdi-arrow-left"></i>
-            </a>
-            {% endif %}
-
-            <!-- Page Numbers -->
-            {% for page in products.paginator.page_range %}
-            <a href="?page={{ page }}" class="flex-c-m how-pagination1 trans-04 m-all-7 {% if products.number == page %}pagination-active{% endif %}">
-                {{ page }}
-            </a>
-            {% endfor %}
-
-            <!-- Next Page -->
-            {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}" class="flex-c-m how-pagination1 trans-04 m-all-7">
-                <i class="zmdi zmdi-arrow-right"></i>
-            </a>
-            {% endif %}
-        </div>
-
+        
     </div>
+    <div class="flex-w flex-c-m p-t-45">
+        <!-- Previous Page -->
+        {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}" class="flex-c-m how-pagination1 trans-04 m-all-7">
+            <i class="zmdi zmdi-arrow-left"></i>
+        </a>
+        {% endif %}
+
+        <!-- Page Numbers -->
+        {% for page in products.paginator.page_range %}
+        <a href="?page={{ page }}" class="flex-c-m how-pagination1 trans-04 m-all-7 {% if products.number == page %}pagination-active{% endif %}">
+            {{ page }}
+        </a>
+        {% endfor %}
+
+        <!-- Next Page -->
+        {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}" class="flex-c-m how-pagination1 trans-04 m-all-7">
+            <i class="zmdi zmdi-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
+
 </section>
 
 <script>
