@@ -96,8 +96,8 @@ def dashboard(request):
                     'total_revenue_day':total_revenue_day
                 }
                 return render(request,'adminpages/dashboard.html',context)
-    else:
-        return redirect('adminlogin')
+            else:
+                return redirect('adminlogin')
     
 
 
@@ -173,8 +173,8 @@ def add_product(request):
                         }
 
                         return render(request, 'adminpages/add_product.html', context)
-    else:
-            return redirect('adminlogin')
+            else:
+                return redirect('adminlogin')
         
     
 
@@ -261,8 +261,8 @@ def save_product_variant_color(request):
                     }
                     # Handle the case when the request method is not POST
                     return render(request, 'adminpages/select_color.html', context)
-    else:
-            return redirect('adminlogin')            
+            else:
+                return redirect('adminlogin')            
     
 from django.http import JsonResponse
 def get_color_checkboxes(request):
@@ -314,8 +314,8 @@ def upload_images(request, product_variant_color_id):
                 }
                     
                 return render(request, 'adminpages/upload_images.html', context)
-    else:
-            return redirect('adminlogin')   
+            else:
+                return redirect('adminlogin')   
 
 
 

@@ -22,8 +22,8 @@ def customer_list(request):
                 page_number = request.GET.get('page')
                 page_users = paginator.get_page(page_number)
                 return render(request, 'adminpages/customerlist.html', {'users': page_users, 'query': query})
-    else:
-            return redirect('adminlogin')
+            else:
+                return redirect('adminlogin')
 
 def editproduct(request,product_id):
     return render(request, 'adminpages/view_edit_products.html')
@@ -70,8 +70,8 @@ def viewcustomer(request, customer_id):
                     'phone_number': phone_number,
                 }
                 return render(request, 'adminpages/view_user.html', context)
-    else:
-            return redirect('adminlogin')
+            else:
+                return redirect('adminlogin')
 
 
 def bancustomer(request, customer_id):

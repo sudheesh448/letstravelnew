@@ -53,6 +53,10 @@ order place
                                         <a href="{% url 'order_view' order.id %}">
                                             <button type="button" class="btn btn-secondary btn-sm">View</button>
                                         </a>
+                                        <a href="{% url 'download_invoice' order.id %}">
+                                            <button type="button" class="btn btn-secondary btn-sm mt-1">Invoice</button>
+                                        </a>
+                                        
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -94,7 +98,7 @@ order place
                         <div class="card-body">
                             <h5 class="card-title">Order Page</h5>
                             <p class="card-text"></p>
-                            <a href="#" class="btn btn-primary">Shop More</a>
+                            <a href="{% url 'shop'%}" class="btn btn-primary">Shop More</a>
                         </div>
                     </div>
                 </div>

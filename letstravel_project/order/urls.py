@@ -14,6 +14,8 @@ urlpatterns = [
     path('order_success/',views.order_success,name='order_success'),
     path('pay_using_wallet/',views.pay_using_wallet,name='pay_using_wallet'),
     path('view_wallets/',views.view_wallets,name='view_wallets'),
-    path('generate_invoice/<int:order_id>/',views.generate_invoice,name='generate_invoice'),    
+    path('generate_invoice/<int:order_id>/',views.generate_invoice,name='generate_invoice'),
+    path('download_sales_report/',views.download_sales_report,name='download_sales_report'),
+    path('download_invoice/<int:order_id>',views.download_invoice,name='download_invoice'),
 ]
 

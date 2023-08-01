@@ -6,80 +6,83 @@ order view
 {% endblock  %}
 
 {% block content %}
-<br><br><br>
+
 <div class="container">
-    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-        <a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
-            Home
-            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-        </a>
-
-        <span class="stext-109 cl4">
-            Shoping Cart
-        </span>
-    </div>
+  
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+      <a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
+          Home
+          <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      </a>
+      <span class="stext-109 cl4">
+          Shoping Cart
+      </span>
+  </div>
 </div>
-    
-
 <!-- Shoping Cart -->
-
-
- <div class="container">
-
-   <table class="table table-bordered table-primary">
-    <thead class="thead-light">
-      <tr>
-          <th scope="col">Product</th>
-          <th scope="col">Price</th>
-          <th scope="col">Quantity</th>                
-      </tr>
-                            </thead>
-                            <tbody></tbody>
-                                {% for orders in view_order %}
-                              <tr>
-                                <th scope="row">{{orders.product}}</th>
-                                <td>{{orders.price}}</td>
-                                <td>{{orders.quantity}}</td>
-                                
-                         
-                              </tr>
-                          {% endfor %}
-                            </tbody>
-                          </table>  
-
-                          <div class="row">
-                           {% for order in view_order %}
-                              {% if forloop.first %}
-                              <div class="card bg-light">
-                                <div class="card-body text-center">
-                                  <h4>Order Details</h4>
-                                  <br>
-                                  <p class="card-text">Order ID : {{ order.order.id }}</p>
-
-                                </div>
-                              </div>
-                         
-                                  <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                      <h4>Shipping address</h4>
-                                      <br>
-                                      <p class="card-text">{{ order.order.address.first_name }}</p>
-                                      <p class="card-text">{{ order.order.address.phone_number }}</p>
-                                      <p class="card-text">{{ order.order.address.state }}</p>
-                                      <p class="card-text">{{ order.order.address.address_line_1 }}</p>
-                                      <p class="card-text">{{ order.order.address.address_line_2 }}</p>
-                                      <p class="card-text"> {{ order.order.address.email}}</p>
-                                      <p class="card-text">{{ order.order.address.postal_code }}</p>
-                                      <p class="card-text">{{ order.order.address.city }}</p>
-                                    </div>
-                                  </div>
-                              {% endif %}
-                          {% endfor %}
-                        </div>
-        
-
+<div class="row">
+<div class="col card-body mt-lg-4 ">  
+      <h3 > Order items</h3>
+    <hr color="dark">
+</div>
+</div> 
+<section style="background-color: #d8d5d5;">
+  <div class="container py-0">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-body text-center">
+            <h3>Order details</h3>
+            <hr color="red">
+            <p>Order id : {{order.id}}<p>
+              <p>Ordered by : {{order.user.username}}</p>
+            <p>Date : {{order.order_date}}</p>
+            <p>Total : {{order.total_price}}</p>
+            <p>Status : {{order.status}}</p>
+            <p>Payment method : {{order.payment_method}}</p>
+            <hr color="red">
+            <h3 > Address </h3>
+            <hr color="red">
+            <h5> {{address.first_name}} {{address.last_name}}<h5>
+              <p> {{address.address_line_1}}</p>
+              <p> {{address.address_line_2}}</p>
+              <p> {{address.city}}</p>
+              <p> {{address.state}}</p>
+              <p> {{address.postal_code}}</p>
+          </div>
+        </div>
+        <div class="card mb-4 mb-lg-0">
+          <div class="card-body p-0">
             
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card ">
+        
+          <div class="">
+            <table class="table table-active">
+              <thead class="">
+                <tr>
+                  <th class=" bg-info text-dark " scope="col">Product</th>
+                  <th class=" bg-info text-dark " scope="col">Price</th>
+                  <th class=" bg-info text-dark " scope="col">Quantity</th> 
+                </tr>
+              </thead>
+              <tbody>
+                  {% for orders in view_order %}
+                <tr>
+                  <th class="  text-dark " scope="row">{{orders.product}}</th>
+                  <td class="  text-dark ">{{orders.price}}</td>
+                  <td class="  text-dark ">{{orders.quantity}}</td>                        
+                </tr>
+            {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-
-
+  </div>
+</section>
 {% endblock  %}

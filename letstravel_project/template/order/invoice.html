@@ -1,48 +1,84 @@
-<!-- invoice.html -->
-{% extends 'products/productbase.html' %} 
-
-{% block title %}Invoice{% endblock title %}
-
-{% block content %}
-<br><br><br>
-<style>
-    /* Custom CSS styles here (if needed) */
-</style>
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title text-center">Invoice for Order #{{ order.id }}</h2>
-                    <p class="text-center">Date: {{ order.order_date }}</p>
-
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for order_item in order.orderitem_set.all %}
-                            <tr>
-                                <td>{{ order_item.product }}</td>
-                                  <td>{{ order_item.price }}</td>
-                                <td>{{ order_item.quantity }}</td>
-                                 
-                                
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-
-                    <p class="total text-right">Total Price: {{ order.total_price }}</p>
-                </div>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    
+    <div class="container">
     </div>
-</div>
-{% endblock content %}
+    <!-- Shoping Cart -->
+    <div class="row">
+    <div class="col card-body mt-lg-4 ">  
+          <h3 > Invoice</h3>
+        <hr color="black">
+    </div>
+    </div> 
+    <section style="background-color: #d8d5d5;">
+      <div class="container py-0">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-body text-center">
+                <h3>Order details</h3>
+                <hr color="red">
+                <p>Order id : {{order.id}}<p>
+                  <p>Ordered by : {{order.user.username}}</p>
+                <p>Date : {{order.order_date}}</p>
+                <p>Total : {{order.total_price}}</p>
+                <p>Status : {{order.status}}</p>
+                <p>Payment method : {{order.payment_method}}</p>
+                <hr color="red">
+                <h3 > Address </h3>
+                <hr color="red">
+                <h5> {{address.first_name}} {{address.last_name}}<h5>
+                  <p> {{address.address_line_1}}</p>
+                  <p> {{address.address_line_2}}</p>
+                  <p> {{address.city}}</p>
+                  <p> {{address.state}}</p>
+                  <p> {{address.postal_code}}</p>
+              </div>
+            </div>
+            <div class="card mb-4 mb-lg-0">
+              <div class="card-body p-0">
+                
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="card ">
+            
+              <div class="">
+                <table class="table table-active">
+                  <thead class="">
+                    <tr>
+                      <th class=" bg-info text-black " scope="col">Product</th>
+                      <th class=" bg-info text-black " scope="col">Price</th>
+                      <th class=" bg-info text-black " scope="col">Quantity</th> 
+                    </tr>
+                  </thead>
+                  <tbody>
+                      {% for orders in view_order %}
+                    <tr>
+                      <th class="  text-black " scope="row">{{orders.product}}</th>
+                      <td class="  text-black">{{orders.price}}</td>
+                      <td class="  text-black">{{orders.quantity}}</td>                        
+                    </tr>
+                {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    
+
+
+</body>
+</html>

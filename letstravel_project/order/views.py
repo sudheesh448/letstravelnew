@@ -1,4 +1,4 @@
-import datetime
+
 from decimal import Decimal
 import hashlib
 import hmac
@@ -29,7 +29,17 @@ from .models import Transaction,Wallet
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Wallet, Transaction                                                      
+from .models import Wallet, Transaction       
+from django.utils import timezone
+from django.db.models import Sum
+from datetime import datetime, timedelta     
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from io import BytesIO
+from xhtml2pdf import pisa
+from django.db.models import Sum
+from decimal import Decimal, ROUND_DOWN, InvalidOperation
+from .models import Order, OrderItem                                          
 # Create your views here.
 
 
@@ -123,9 +133,12 @@ def order_view(request,order_id):
         return redirect( 'signin')
     else:
          orderss = Order.objects.get(id=order_id)
+         address = orderss.address
          view_order = OrderItem.objects.filter(order=orderss)
          context ={
-             'view_order':view_order
+             'view_order':view_order,
+             'order': orderss,
+             'address':address,
          }
     return render(request,"order/order_view.html",context)
 
@@ -452,3 +465,127 @@ def generate_invoice(request, order_id):
     }
 
     return render(request, 'order/invoice.html', context)
+
+
+
+
+
+def quantize_decimal(value):
+    return value.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+
+def download_sales_report(request):
+    if request.method == 'POST':
+         
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+    # Convert the start_date and end_date strings to datetime objects if needed
+    if start_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    if end_date:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+    # Validate end date is after start date
+    if start_date and end_date and end_date < start_date:
+        # Set the end date to be the same as the start date
+        end_date = start_date
+
+    today = datetime.today()
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+
+    # Fetch orders within the selected time frame
+    if start_date and end_date:
+        orders_within_time_frame = Order.objects.filter(order_date__date__range=[start_date, end_date])
+    else:
+        # If no start_date and end_date are selected, fetch all orders
+        orders_within_time_frame = Order.objects.all()
+
+
+    today = datetime.today()
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+
+    # Today's totals
+    today_orders = Order.objects.filter(order_date__date=today)
+    order_count_today = today_orders.count()
+    total_price_today = today_orders.aggregate(Sum('total_price'))['total_price__sum']
+    total_price_today = Decimal(str(total_price_today))
+    total_price_today = quantize_decimal(total_price_today)
+
+    # Weekly totals
+    week_orders = Order.objects.filter(order_date__date__range=[week_ago, today])
+    order_count_week = week_orders.count()
+    total_price_week = week_orders.aggregate(Sum('total_price'))['total_price__sum']
+    total_price_week = Decimal(str(total_price_week))
+    total_price_week = quantize_decimal(total_price_week)
+
+    # Monthly totals
+    month_orders = Order.objects.filter(order_date__date__range=[month_ago, today])
+    order_count_month = month_orders.count()
+    total_price_month = month_orders.aggregate(Sum('total_price'))['total_price__sum']
+    total_price_month = Decimal(str(total_price_month))
+    total_price_month = quantize_decimal(total_price_month)
+
+
+    context = {
+        'order_count_today': order_count_today,
+        'total_price_today': total_price_today,
+        'order_count_week': order_count_week,
+        'total_price_week': total_price_week,
+        'order_count_month': order_count_month,
+        'total_price_month': total_price_month,
+        'orders': orders_within_time_frame,
+        'start_date': start_date,
+        'end_date': end_date,
+        
+    }
+
+    # Render the HTML content using the 'sales.html' template and the provided context
+    html_content = render_to_string('order/salesreport.html', context)
+
+    # Set the response content type as 'application/pdf' to indicate that it's a PDF file
+    response = HttpResponse(content_type='application/pdf')
+
+    # Set the filename for the downloaded file
+    response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+
+    # Generate the PDF content from the HTML using xhtml2pdf
+    pdf = pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), response)
+
+    if pdf.err:
+        return HttpResponse('Error generating PDF', status=500)
+
+    return response
+
+
+
+def download_invoice(request,order_id):
+    if not request.user.is_authenticated:
+        messages.error(request,"Please sign in to continue")
+        return redirect( 'signin')
+    else:
+         orderss = Order.objects.get(id=order_id)
+         address = orderss.address
+         view_order = OrderItem.objects.filter(order=orderss)
+         context ={
+             'view_order':view_order,
+             'order': orderss,
+             'address':address,
+         }
+    # Render the HTML content using the 'sales.html' template and the provided context
+    html_content = render_to_string('order/invoice.html', context)
+
+    # Set the response content type as 'application/pdf' to indicate that it's a PDF file
+    response = HttpResponse(content_type='application/pdf')
+
+    # Set the filename for the downloaded file
+    response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
+
+    # Generate the PDF content from the HTML using xhtml2pdf
+    pdf = pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), response)
+
+    if pdf.err:
+        return HttpResponse('Error generating PDF', status=500)
+
+    return response

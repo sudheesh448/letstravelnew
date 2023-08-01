@@ -8,7 +8,30 @@
 
 
 
-<div class="container " id="sales-report">
+<div class="container" id="sales-report">
+  <form action="{% url 'download_sales_report' %}" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-4">
+        <!-- Date range selection -->
+        <div class="form-group">
+          <label for="start-date">Start Date:</label>
+          <input type="date" id="start-date" name="start_date" class="form-control" style="width: 100%;">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <!-- Date range selection -->
+        <div class="form-group">
+          <label for="end-date">End Date:</label>
+          <input type="date" id="end-date" name="end_date" class="form-control" style="width: 100%;" >
+        </div>
+      </div>
+      <div class="col-md-4 mt-4">
+        <!-- Download PDF button -->
+        <button type="submit" class="btn btn-primary" id="download-pdf-btn">Download PDF</button>
+      </div>
+    </div>
+  </form>
   
   <div class="row">
     <div class="col-md-8 offset-md-2">
@@ -66,7 +89,7 @@
       </div>
     </div>
   </div>
-  <a href="#" class="btn btn-primary" id="downloadPDFButton" onclick="downloadPDF()">Download PDF</a>
+ 
 </div>
 
 
@@ -104,37 +127,21 @@
     color: #333; /* Adjust the color as needed */
   }
 </style>
-
 <script>
-  function downloadPDF() {
-    const salesReportContent = document.getElementById('sales-report').innerHTML;
-    
-    const docDefinition = {
-      content: [
-        { text: 'Sales Report', style: 'header' },
-        { text: salesReportContent, style: 'body' }
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10]
-        },
-        body: {
-          fontSize: 12,
-          margin: [0, 0, 0, 10]
-        }
-      }
-    };
-
-    const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-    pdfDocGenerator.download('sales_report.pdf');
+  function updateEndDateMax() {
+    const startDateInput = document.getElementById("start-date");
+    const currentDate = new Date().toISOString().split("T")[0];
+    startDateInput.max = currentDate;
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const downloadPDFButton = document.getElementById('download-pdf-btn');
-    downloadPDFButton.addEventListener('click', downloadPDF);
-  });
+  function updateStartDateMax() {
+    const endDateInput = document.getElementById("end-date");
+    const currentDate = new Date().toISOString().split("T")[0];
+    endDateInput.max = currentDate;
+  }
+
+  updateEndDateMax();
+  updateStartDateMax();
 </script>
 
 {% endblock content %}

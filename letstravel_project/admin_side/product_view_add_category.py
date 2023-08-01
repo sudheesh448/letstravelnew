@@ -131,8 +131,8 @@ def productlist(request):
                     'query': query
                 }
                 return render(request, 'adminpages/productlist.html', context)
-    else:
-            return redirect('adminlogin') 
+            else:
+                return redirect('adminlogin') 
 
 
 def ordertableadmin(request):
@@ -155,8 +155,8 @@ def ordertableadmin(request):
                     'search_query': search_query
                 }
                 return render(request, 'adminpages/orders.html', context)
-    else:
-            return redirect('adminlogin') 
+            else:
+                return redirect('adminlogin') 
 
 
 def order_viewadmin(request, order_id):
@@ -174,8 +174,8 @@ def order_viewadmin(request, order_id):
                     'address': address,
                 }
                 return render(request, "adminpages/order_viewadmin.html", context)
-    else:
-            return redirect('adminlogin') 
+            else:
+                return redirect('adminlogin') 
 
 
 def Shipped_order(request,order_id):
@@ -320,8 +320,8 @@ def add_new_variant(request):
                         # Handle any database-related errors or validation errors
                         # You can show an error message or return an error response
                         return JsonResponse({'success': False, 'message': 'An error occurred while adding the variant.'})
-    else:
-            return redirect('adminlogin') 
+            else:
+                return redirect('adminlogin') 
 
                 
 
@@ -351,8 +351,8 @@ def cancel_orders_admin(request,order_id):
                             variant.save()
                             
                 return redirect('ordertableadmin')
-    else:
-            return redirect('adminlogin')
+            else:
+                return redirect('adminlogin')
 
 # views.py
 from django.shortcuts import render, redirect, reverse
@@ -381,8 +381,8 @@ def delete_image(request):
 
                 # Return a JsonResponse with appropriate error message if needed
                 return JsonResponse({'success': False, 'message': 'Invalid request'})
-    else:
-            return redirect('adminlogin')
+            else:
+                return redirect('adminlogin')
 
 
 
