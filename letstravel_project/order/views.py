@@ -310,8 +310,8 @@ def initiate_payment(request):
         # Retrieve the total price and other details from the backend
         cartss = Cart.objects.get(user=request.user)
         items = CartItem.objects.filter(cart=cartss)
-        # total_price = sum(item.price * item.quantity for item in items)
-        total_price =1
+        total_price = sum(item.price * item.quantity for item in items)
+        # total_price =1
         client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
         payment = client.order.create({'amount': int(total_price * 100), 'currency': 'INR', 'payment_capture': 1})
     
