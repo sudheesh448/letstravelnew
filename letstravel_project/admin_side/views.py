@@ -279,7 +279,6 @@ def upload_images(request, product_variant_color_id):
             if request.user.is_superuser:
     # Retrieve the product variant color object using the provided ID
                 product_variant_color = get_object_or_404(ProductVariantColor, pk=product_variant_color_id)
-
                 # Retrieve the associated product variant object
                 product_variant = product_variant_color.product_variant
 
