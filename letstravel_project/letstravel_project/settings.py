@@ -153,23 +153,11 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'letstravelllp@gmail.com'
-EMAIL_HOST_PASSWORD = 'nhyueiuafrwjjzfu'
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-RAZOR_KEY_ID = 'rzp_test_ModqYC5AvLYtAv'
-RAZOR_KEY_SECRET = 'EVcF6xirN3s6SaZLXjhw8EvU'
-
-TWILIO_ACCOUNT_SID = 'ACeb88ad4d53d602ff771d112e350516b5'
-TWILIO_AUTH_TOKEN = '90a1b2d5aa604e61ebdb6be7cfc18c9c'
-TWILIO_PHONE_NUMBER = +13257700869
 
 
 
